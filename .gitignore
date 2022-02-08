@@ -1,1 +1,16 @@
 .vscode
+
+*.o
+*.a
+a.out*
+*~
+
+# dblayer
+data.db*
+*.db
+
+# pflayer
+test1
+test2
+testhash
+testpf
