@@ -25,12 +25,32 @@ int  getNthSlotOffset(int slot, char* pageBuf); UNIMPLEMENTED;
 int
 Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 {
-    UNIMPLEMENTED;
+    // UNIMPLEMENTED;
+
+    int status, fd;
+
     // Initialize PF, create PF file,
+    PF_Init();
+
+    if (overwrite){
+        status = PF_DestroyFile(dbname); 
+    }
+
+    fd = PF_OpenFile(dbname);
+    if (fd < 0){
+        status = PF_CreateFile(dbname);
+        if (status != PFE_OK)
+            printf("Table_Open: Error while creating the file\n");
+    }
+
     // allocate Table structure  and initialize and return via ptable
     // The Table structure only stores the schema. The current functionality
     // does not really need the schema, because we are only concentrating
     // on record storage. 
+
+    // not sure what to do here
+
+
 }
 
 void
