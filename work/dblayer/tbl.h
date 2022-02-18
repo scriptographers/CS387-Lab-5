@@ -21,7 +21,11 @@ typedef struct {
 typedef struct {
     Schema *schema;
 
-    UNIMPLEMENTED; 
+    // UNIMPLEMENTED;
+
+    int** records;
+    int numRecords;
+    int* freeLoc; 
     
 } Table ;
 
