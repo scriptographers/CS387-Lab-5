@@ -10,10 +10,39 @@
 #define SLOT_COUNT_OFFSET 2
 #define checkerr(err) {if (err < 0) {PF_PrintError(); exit(EXIT_FAILURE);}}
 
-int  getLen(int slot, byte *pageBuf); UNIMPLEMENTED;
-int  getNumSlots(byte *pageBuf); UNIMPLEMENTED;
-void setNumSlots(byte *pageBuf, int nslots); UNIMPLEMENTED;
-int  getNthSlotOffset(int slot, char* pageBuf); UNIMPLEMENTED;
+int* getPointer(byte* pageBuf, int i){
+    // EXTRA FUNCTION: Returns pointer to ith position
+    int* p = (int*) pageBuf + i;
+    return p;
+}
+
+int getLen(int slot, byte *pageBuf){
+    // Returns slot size of 'slot'th slot
+    if (slot == 0){
+        // first slot at the bottom of the page
+        int size = PF_PAGE_SIZE - *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET);
+    }
+    else{
+        int off_prev = *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET - 1);
+        int off_cur = *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET);
+        int size = off_prev - off_cur; // off_prev > off_cur
+    }
+    return size;
+}
+
+int getNumSlots(byte *pageBuf){
+    int nslots = *getPointer(pageBuf, 1);
+    return nslots;
+}
+
+void setNumSlots(byte *pageBuf, int nslots){
+    *getPointer(pageBuf, 1) = nslots;
+}
+
+int  getNthSlotOffset(int slot, char* pageBuf){
+    int offset = *getPointer(pageBuf, SLOT_COUNT_OFFSET + slot);
+    return offset;
+}
 
 
 /**
@@ -25,7 +54,6 @@ int  getNthSlotOffset(int slot, char* pageBuf); UNIMPLEMENTED;
 int
 Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 {
-    // UNIMPLEMENTED;
 
     int status, fd;
 
