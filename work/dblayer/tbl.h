@@ -20,13 +20,8 @@ typedef struct {
 
 typedef struct {
     Schema *schema;
-
-    // UNIMPLEMENTED;
-
-    int** records;
-    int numRecords;
-    int* freeLoc; 
-    
+    char* name;
+    int numPages;
 } Table ;
 
 typedef int RecId;

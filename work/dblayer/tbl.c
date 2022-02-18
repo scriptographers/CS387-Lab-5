@@ -16,6 +16,11 @@ int* getPointer(byte* pageBuf, int i){
     return p;
 }
 
+int getFreeSlot(byte* pageBuf){
+    // EXTRA FUNCTION: Returns offset value for the free slot
+    return *getPointer(pageBuf, 0);
+}
+
 int getLen(int slot, byte *pageBuf){
     // Returns slot size of 'slot'th slot
     if (slot == 0){
@@ -39,7 +44,7 @@ void setNumSlots(byte *pageBuf, int nslots){
     *getPointer(pageBuf, 1) = nslots;
 }
 
-int  getNthSlotOffset(int slot, char* pageBuf){
+int getNthSlotOffset(int slot, char* pageBuf){
     int offset = *getPointer(pageBuf, SLOT_COUNT_OFFSET + slot);
     return offset;
 }
@@ -67,18 +72,29 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     fd = PF_OpenFile(dbname);
     if (fd < 0){
         status = PF_CreateFile(dbname);
-        if (status != PFE_OK)
+        if (status != PFE_OK){
             printf("Table_Open: Error while creating the file\n");
+            return status;
+        }
     }
 
-    // allocate Table structure  and initialize and return via ptable
-    // The Table structure only stores the schema. The current functionality
-    // does not really need the schema, because we are only concentrating
-    // on record storage. 
+    // allocate Table structure, initialize and return via ptable
 
-    // not sure what to do here
+    *ptable = malloc(sizeof(struct Table));
+    if (*ptable == NULL){
+        printf("Table_Open: Malloc error while table init\n");
+        return -1;
+    }
+    *ptable->schema = malloc(sizeof(struct Schema)); 
+    if (*ptable->schema == NULL){
+        printf("Table_Open: Malloc error while schema init\n");
+        return -1;
+    }
+    memcpy(*ptable->schema, schema, sizeof(*ptable->schema));
+    *ptable->numPages = 1;
+    *ptable->name = strdup(dbname);
 
-
+    return 0;
 }
 
 void
