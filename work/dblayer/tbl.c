@@ -221,7 +221,8 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     printf("done\n");
     int temp = remainingSpace(pagebuf);
-    printf("rem: %d", temp);
+    printf("rem: %d\n", temp);
+    fflush(stdout);
 
     // Unfix the page
     status = PF_UnfixPage(fd, pagenum, true);

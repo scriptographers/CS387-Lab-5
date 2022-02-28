@@ -98,42 +98,21 @@ Schema *loadCSV() {
   char record[MAX_PAGE_SIZE];
 
   while ((line = fgets(buf, MAX_LINE_LEN, fp)) != NULL) {
-    printf("Data: %s", line);
+    printf("\nData: %s", line);
     fflush(stdout);
 
     int n = split(line, ",", tokens);
     assert(n == sch->numColumns);
     int len = encode(sch, tokens, record, sizeof(record));
     printf("Len %i\n", len);
+    fflush(stdout);
+
     RecId rid;
-
-    status = Table_Insert(tbl, record, len, &rid); 
-    if (status < 0){
-      printf("loadCSV: error while inserting into table\n");
-      exit(EXIT_FAILURE);
-    }
-    // AM_InsertEntry(index field, rid)
-
-    printf("RID: %d\n", rid);
-
-    /*
-    UNIMPLEMENTED;
-=======
     status = Table_Insert(tbl, record, len, &rid);
     tperror(status, "loadCSV: error while inserting into table\n");
->>>>>>> 548149d14d841311eaeb563ab48afda7adfe1abd
 
-    printf("%d %s\n", rid, tokens[0]);
-
-    // Indexing on the population column
-    int population = atoi(tokens[2]);
-<<<<<<< HEAD
-
-    UNIMPLEMENTED;
-    // Use the population field as the field to index on
-
-    checkerr(err);
-    */
+    printf("RID: %i\n", rid);
+    fflush(stdout);
 
     status = AM_InsertEntry(indexFD, 'i', 4, tokens[2], rid);
     tperror(status, "loadCSV: error while inserting into index file\n");
