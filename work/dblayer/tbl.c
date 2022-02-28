@@ -120,6 +120,11 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     *ptable->numPages = 1;
     *ptable->name = strdup(dbname);
 
+    // Close PF file
+    status = PF_CloseFile(fd);
+    tperror(status, "Table_Open: error while closing file");
+    if (status < 0){ return status; }
+
     return 0;
 }
 
@@ -196,7 +201,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     // Close PF file
     status = PF_CloseFile(fd);
     tperror(status, "Table_Insert: error while closing file");
-    if (status < 0){ return; }
+    if (status < 0){ return status; }
 
     return 0;
 }
@@ -241,19 +246,44 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen)
     // Close PF file
     status = PF_CloseFile(fd);
     tperror(status, "Table_Get: error while closing file");
-    if (status < 0){ return; }
+    if (status < 0){ return status; }
 
-    return slen; // return number of bytes copied
+    return clen; // return number of bytes copied
 }
 
 void
 Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) 
 {
-    UNIMPLEMENTED;
+    int status;
+    int* ppagenum = -1;
+    byte** pagebuf; // pointer to the pointer to the buffer
 
-    // For each page obtained using PF_GetFirstPage and PF_GetNextPage
-    //    for each record in that page,
-    //          callbackfn(callbackObj, rid, record, recordLen)
+    // Open the PF file
+    fd = PF_OpenFile(tbl->name);
+    tperror(fd, "Table_Scan: error while opening file");
+    if (fd < 0){ return fd; }
+
+    // Scan
+    int rid, nslots, rlen, offset;
+    byte* record;
+    while (PF_GetNextPage(fd, ppagenum, pagebuf) != PFE_EOF){
+        nslots = getNumSlots(*pagebuf);
+        for (int s = 0; s < nslots; s++){
+            rid = (*ppagenum) << 16 + s;
+            rlen = getLen(s, *pagebuf);
+            offset = getNthSlotOffset(s, *pagebuf);
+            free(record);
+            record = malloc(sizeof(byte) * rlen);
+            memcpy(record, *pagebuf + offset, rlen);
+            callbackfn(callbackObj, rid, record, rlen);
+        }
+    }
+    free(record);
+
+    // Close PF file
+    status = PF_CloseFile(fd);
+    tperror(status, "Table_Scan: error while closing file");
+    if (status < 0){ return status; }
 }
 
-
+// TBD: will probably have to unfix pages each time they're modified
