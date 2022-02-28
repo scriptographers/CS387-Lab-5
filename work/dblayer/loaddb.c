@@ -100,7 +100,14 @@ Schema *loadCSV() {
     int n = split(line, ",", tokens);
     assert(n == sch->numColumns);
     int len = encode(sch, tokens, record, sizeof(record));
-    RecId rid;
+    
+    RecId *rid;
+    status = Table_Insert(tbl, record, len, rid); 
+    if (status < 0){
+      printf("Error while inserting into table\n");
+      exit(EXIT_FAILURE);
+    }
+    // AM_InsertEntry(index field, rid)
 
     printf("Hi %i\n", len);
     /*
