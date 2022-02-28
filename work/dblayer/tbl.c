@@ -145,6 +145,7 @@ int
 Table_Insert(Table *tbl, byte *record, int len, RecId *rid) 
 {
     int status;
+    int* ppagenum;
 
     if (len > PF_PAGE_SIZE){
         printf("length of record exceed page size\n");
@@ -162,6 +163,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     int num_pages = tbl->numPages;
     status = PF_GetThisPage(fd, num_pages - 1, pagebuf);
     tperror(status, "Table_Insert: error while opening page");
+    *ppagenum = num_pages - 1;
 
     // Allocate a fresh page if len is not enough for remaining space
     int rem = remainingSpace(*pagebuf);
@@ -179,6 +181,10 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     int nslots = getNumSlots(*pagebuf);
     setNumSlots(*pagebuf, nslots + 1);
     setFreeOffset(*pagebuf, offset - len);
+
+    *rid = (*ppagenum) << 16 + nslots;
+
+    return 0;
 }
 
 /*
