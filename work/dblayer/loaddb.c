@@ -30,19 +30,21 @@
  */
 int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
   int n = sch->numColumns;
+  int len = 0;
+
   for (int i = 0; i < n; ++i) {
-    printf("%s: %s\n", sch->columns[i]->name, fields[i]);
+    // printf("%s: %s\n", sch->columns[i]->name, fields[i]);
     switch (sch->columns[i]->type) {
     case VARCHAR:
-      spaceLeft -= EncodeCString(fields[i], record, strlen(fields[i]));
+      len += EncodeCString(fields[i], record, strlen(fields[i]));
       break;
 
     case INT:
-      spaceLeft -= EncodeInt(atoi(fields[i]), record);
+      len += EncodeInt(atoi(fields[i]), record);
       break;
 
     case LONG:
-      spaceLeft -= EncodeLong(atoll(fields[i]), record);
+      len += EncodeLong(atoll(fields[i]), record);
       break;
 
     default:
@@ -50,14 +52,12 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
       break;
     }
   }
-  //   UNIMPLEMENTED;
-  // for each field
-  //    switch corresponding schema type is
-  //        VARCHAR : EncodeCString
-  //        INT : EncodeInt
-  //        LONG: EncodeLong
-  // return the total number of bytes encoded into record
-  return sizeof(record) - spaceLeft;
+
+  if (len > spaceLeft) {
+    printf("Not enough space left\n");
+    return -1;
+  }
+  return len;
 }
 
 Schema *loadCSV() {
@@ -83,10 +83,7 @@ Schema *loadCSV() {
   Table *tbl;
 
   status = Table_Open(DB_NAME, sch, true, &tbl);
-  if (status < 0){
-    printf("loadCSV: error while opening table\n");
-    exit(EXIT_FAILURE);
-  }
+  tperror(status, "loadCSV: error while opening table\n");
 
   /* UNIMPLEMENTED; */
 
@@ -101,8 +98,11 @@ Schema *loadCSV() {
     assert(n == sch->numColumns);
     int len = encode(sch, tokens, record, sizeof(record));
     RecId rid;
+    printf("Len %i\n", len);
+    status = Table_Insert(tbl, record, len, &rid);
+    tperror(status, "loadCSV: error while inserting record");
+    printf("Hi %i\n", rid);
 
-    printf("Hi %i\n", len);
     /*
     UNIMPLEMENTED;
 
