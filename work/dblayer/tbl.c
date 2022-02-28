@@ -11,8 +11,8 @@
 #define checkerr(err) {if (err < 0) {PF_PrintError(); exit(EXIT_FAILURE);}}
 
 int* getPointer(byte* pageBuf, int i){
-    // EXTRA FUNCTION: Returns pointer to ith position
-    int* p = (int*) pageBuf + i;
+    // EXTRA FUNCTION: Returns (integer) pointer to ith position
+    int* p = ((int*) pageBuf) + i;
     return p;
 }
 
@@ -31,7 +31,7 @@ int getLen(int slot, byte *pageBuf){
     int size;
     if (slot == 0){
         // first slot at the bottom of the page
-        size = PF_PAGE_SIZE - *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET);
+        size = PF_PAGE_SIZE - *getPointer(pageBuf, SLOT_COUNT_OFFSET);
     }
     else{
         int off_prev = *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET - 1);
@@ -56,11 +56,17 @@ int getNthSlotOffset(int slot, char* pageBuf){
 }
 
 int remainingSpace(byte* pageBuf){
-    // EXTRA FUNCTION: Returns total free space value in the page
+    // EXTRA FUNCTION: Returns total free space value (in 4s of bytes) in the page
     int nslots = getNumSlots(pageBuf);
-    int last_offset = getNthSlotOffset(nslots - 1, pageBuf);
-    printf("offset: %d\n", last_offset);
-    int rem = PF_PAGE_SIZE - last_offset;
+    int free_start = (SLOT_COUNT_OFFSET + nslots);
+    int free_end = getFreeSlot(pageBuf);
+    int rem = free_end - free_start;
+    if (rem < 0){
+        printf("remainingSpace = %d\n", rem);
+        exit(EXIT_FAILURE);
+    }
+    printf("free start: %d, free end: %d, rem: %d\n", free_start, free_end, rem);
+    fflush(stdout);
     return rem;
 }
 
@@ -157,8 +163,11 @@ Table_Close(Table *tbl)
         // always set dirty = true 
         // TBD: better method would be to track dirty pages in table struct
         status = PF_UnfixPage(fd, i, true);
-        tperror(status, "Table_Close: error while unfixing page");
-        if (status < 0){ return; }
+        if (!(status == PFE_OK) && !(status == PFE_PAGEUNFIXED) && !(status == PFE_PAGENOTINBUF)){
+            printf("err: %d\n", status);
+            tperror(status, "Table_Close: error while unfixing page");
+            if (status < 0){ return; }
+        }
     }
 
     // Close PF file
@@ -193,6 +202,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         tperror(status, "Table_Insert: error while opening page");
         if (status < 0){ return status; }
         pagenum = num_pages - 1;
+        printf("old page %d\n", pagenum);
         rem = remainingSpace(pagebuf);
     }
     else{
@@ -201,28 +211,41 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     // Allocate a fresh page if len is not enough for remaining space
     if (rem < len){
+
+        // Unfix previous page
+        if (num_pages > 0){
+            status = PF_UnfixPage(fd, num_pages - 1, false);
+            tperror(status, "Table_Insert: error while unfixing space constrained page");
+            if (status < 0){ return status; }
+        }
+
         status = PF_AllocPage(fd, &pagenum, &pagebuf);
         tperror(status, "Table_Insert: error while allocating page");
         if (status < 0){ return status; }
         tbl->numPages++;
         setNumSlots(pagebuf, 0);
+        setFreeOffset(pagebuf, PF_PAGE_SIZE/4);
+        printf("length not enough, new page %d\n", pagenum);
+        int temp = remainingSpace(pagebuf);
     }
 
     // Get the next free slot on page, and copy record in the free space
-    int offset = getFreeSlot(pagebuf);
-    memcpy(pagebuf + offset - len + SLOT_COUNT_OFFSET, record, len);
+    int free_offset = getFreeSlot(pagebuf);
+    int slot_offset = free_offset - len;
+    printf("free offset: %d, slot_offset: %d\n", free_offset, slot_offset);
 
     // Update slot and free space index information on top of page
     int nslots = getNumSlots(pagebuf);
     setNumSlots(pagebuf, nslots + 1);
-    setFreeOffset(pagebuf, offset - len);
+    setFreeOffset(pagebuf, slot_offset);
+    int loc_slot_offset = SLOT_COUNT_OFFSET + nslots + 1;
+    printf("location of slot offset: %d\n", loc_slot_offset);
+    *getPointer(pagebuf, loc_slot_offset) = slot_offset;
 
-    *rid = pagenum << 16 + nslots;
-
-    printf("done\n");
-    int temp = remainingSpace(pagebuf);
-    printf("rem: %d\n", temp);
-    fflush(stdout);
+    // Compute RID
+    int page_bits = pagenum << 16;
+    *rid = page_bits + nslots;
+    printf("new nslots: %d, RID: %d\n", getNumSlots(pagebuf), *rid);
 
     // Unfix the page
     status = PF_UnfixPage(fd, pagenum, true);
