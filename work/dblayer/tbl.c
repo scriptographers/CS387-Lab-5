@@ -171,8 +171,8 @@ int
 Table_Insert(Table *tbl, byte *record, int len, RecId *rid) 
 {
     int status, fd;
-    int* ppagenum; // pointer to page number
-    byte** pagebuf; // pointer to the pointer to the buffer
+    int pagenum; // page number
+    byte* pagebuf; // pointer to the buffer
 
     if (len > PF_PAGE_SIZE){
         printf("Table_Insert: length of record exceed page size\n");
@@ -191,7 +191,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         status = PF_GetThisPage(fd, num_pages - 1, pagebuf);
         tperror(status, "Table_Insert: error while opening page");
         if (status < 0){ return status; }
-        *ppagenum = num_pages - 1;
+        pagenum = num_pages - 1;
         rem = remainingSpace(*pagebuf);
     }
     else{
@@ -200,23 +200,22 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     // Allocate a fresh page if len is not enough for remaining space
     if (rem < len){
-        status = PF_AllocPage(fd, ppagenum, pagebuf);
-        printf("hello\n");
+        status = PF_AllocPage(fd, &pagenum, &pagebuf);
         tperror(status, "Table_Insert: error while allocating page");
         if (status < 0){ return status; }
         tbl->numPages++;
     }
 
     // Get the next free slot on page, and copy record in the free space
-    int offset = getFreeSlot(*pagebuf);
-    memcpy(*pagebuf + offset, record, len);
+    int offset = getFreeSlot(pagebuf);
+    memcpy(pagebuf + offset, record, len);
 
     // Update slot and free space index information on top of page
-    int nslots = getNumSlots(*pagebuf);
-    setNumSlots(*pagebuf, nslots + 1);
-    setFreeOffset(*pagebuf, offset - len);
+    int nslots = getNumSlots(pagebuf);
+    setNumSlots(pagebuf, nslots + 1);
+    setFreeOffset(pagebuf, offset - len);
 
-    *rid = (*ppagenum) << 16 + nslots;
+    *rid = pagenum << 16 + nslots;
 
     // Close PF file
     status = PF_CloseFile(fd);
