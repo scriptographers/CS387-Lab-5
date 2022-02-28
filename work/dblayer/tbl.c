@@ -237,11 +237,14 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         int temp = remainingSpace(pagebuf);
     }
 
-    // Get the next free slot on page, and copy record in the free space
+    // Get the next free slot on page
     int nslots = getNumSlots(pagebuf);
     int free_offset = getFreeSlot(pagebuf); // in bytes
     int slot_offset = free_offset - len; // in bytes
     // printf("free offset: %d, slot_offset: %d\n", free_offset, slot_offset);
+
+    // Copy
+    memcpy(pagebuf + slot_offset, record, len);
 
     // Update number of slots
     setNumSlots(pagebuf, nslots + 1);
@@ -318,9 +321,8 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen)
 void
 Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) 
 {
-    int status, fd;
-    int* ppagenum; *ppagenum = -1;
-    byte** pagebuf; // pointer to the pointer to the buffer
+    int status, fd, pagenum;
+    byte* pagebuf; // pointer to the pointer to the buffer
 
     // Open the PF file
     fd = PF_OpenFile(tbl->name);
@@ -328,18 +330,23 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
     if (fd < 0){ return; }
 
     // Scan
-    int rid, nslots, rlen, offset;
+    int rid, nslots, slen, offset;
     byte* record;
-    while (PF_GetNextPage(fd, ppagenum, pagebuf) != PFE_EOF){
-        nslots = getNumSlots(*pagebuf);
+    while (PF_GetNextPage(fd, &pagenum, &pagebuf) != PFE_EOF){
+        nslots = getNumSlots(pagebuf);
         for (int s = 0; s < nslots; s++){
-            rid = (*ppagenum) << 16 + s;
-            rlen = getLen(s, *pagebuf);
-            offset = getNthSlotOffset(s, *pagebuf);
+            
+            rid = (pagenum << 16) + s;
+            
+            slen = getLen(s, pagebuf); // in bytes
+            offset = getNthSlotOffset(s, pagebuf); // in bytes
+            
             free(record);
-            record = malloc(sizeof(byte) * rlen);
-            memcpy(record, *pagebuf + offset, rlen);
-            callbackfn(callbackObj, rid, record, rlen);
+            record = malloc(sizeof(byte)*slen);
+            memcpy(record, pagebuf + offset, slen);
+            
+            callbackfn(callbackObj, rid, record, slen);
+
         }
     }
     free(record);
