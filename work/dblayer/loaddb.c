@@ -85,14 +85,14 @@ Schema *loadCSV() {
   Table *tbl;
 
   status = Table_Open(DB_NAME, sch, true, &tbl);
-  tperror(status, "loadCSV: error while opening table\n");
+  tperror(status, "LoadDB: error while opening table\n");
 
   status = AM_DestroyIndex(DB_NAME, 2);
   status = AM_CreateIndex(DB_NAME, 2, 'i', 4);
-  tperror(status, "loadCSV: error while creating index\n");
+  tperror(status, "LoadDB: error while creating index\n");
 
   int indexFD = PF_OpenFile(INDEX_NAME);
-  tperror(status, "loadCSV: error while opening index file\n");
+  tperror(status, "LoadDB: error while opening index file\n");
 
   char *tokens[MAX_TOKENS];
   char record[MAX_PAGE_SIZE];
@@ -109,22 +109,27 @@ Schema *loadCSV() {
 
     RecId rid;
     status = Table_Insert(tbl, record, len, &rid);
-    tperror(status, "loadCSV: error while inserting into table\n");
+    tperror(status, "LoadDB: error while inserting into table\n");
 
     printf("RID: %i\n", rid);
     fflush(stdout);
 
     status = AM_InsertEntry(indexFD, 'i', 4, tokens[2], rid);
-    tperror(status, "loadCSV: error while inserting into index file\n");
+    tperror(status, "LoadDB: error while inserting into index file\n");
   }
 
-  fclose(fp);
-  Table_Close(tbl);
-
   status = PF_CloseFile(indexFD);
-  tperror(status, "loadCSV: error while closing index file\n");
+  tperror(status, "LoadDB: error while closing index file\n");
+
+  Table_Close(tbl);
+  fclose(fp);
 
   return sch;
 }
 
-int main() { loadCSV(); }
+int main() {
+
+  loadCSV();
+
+  return 0;
+}
