@@ -74,23 +74,23 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
         status = PF_CreateFile(dbname);
         if (status != PFE_OK){
             printf("Table_Open: Error while creating the file\n");
-            return status;
+            exit(EXIT_FAILURE);
         }
         fd = PF_OpenFile(dbname); // now open the newly created file
     }
 
     // allocate Table structure, initialize and return via ptable
-    
+
     *ptable = malloc(sizeof(struct Table));
     if (*ptable == NULL){
         printf("Table_Open: Malloc error while table init\n");
-        return -1;
+        exit(EXIT_FAILURE);
     }
     // Allocate schema space
     *ptable->schema = malloc(sizeof(struct Schema)); 
     if (*ptable->schema == NULL){
         printf("Table_Open: Malloc error while schema init\n");
-        return -1;
+        exit(EXIT_FAILURE);
     }
     // Copy the given schemas and assign metadata
     memcpy(*ptable->schema, schema, sizeof(*ptable->schema));
@@ -102,8 +102,34 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 
 void
 Table_Close(Table *tbl) {
-    UNIMPLEMENTED;
-    // Unfix any dirty pages, close file.
+
+    int status;
+
+    // Open the PF file
+    fd = PF_OpenFile(dbname);
+    if (fd < 0){
+        printf("Table_Close: error while opening\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Unfix any dirty pages
+    for (int i = 0; i < tbl->numPages; i++){
+        // TBD: check if page is dirty
+        int dirty = true;
+        status = PF_UnfixPage(fd, i, dirty);
+        if (status != PFE_OK){
+            printf("Table_Close: error while unfixing page %d\n", i);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    // Close PF file
+    status = PF_CloseFile(fd);
+    if (status != PFE_OK){
+        printf("Table_Close: error while closing\n");
+        exit(EXIT_FAILURE);
+    }
+
 }
 
 
