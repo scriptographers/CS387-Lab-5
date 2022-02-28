@@ -21,8 +21,10 @@
 #define MAX_PAGE_SIZE 4000
 
 #define DB_NAME "data.db"
-#define INDEX_NAME "data.db.0"
+#define INDEX_NAME "data.db.2"
 #define CSV_NAME "data.csv"
+
+extern void tperror(int, char *);
 
 /**
  * Takes a schema, and an array of strings (fields), and uses the functionality
@@ -85,7 +87,12 @@ Schema *loadCSV() {
   status = Table_Open(DB_NAME, sch, true, &tbl);
   tperror(status, "loadCSV: error while opening table\n");
 
-  /* UNIMPLEMENTED; */
+  status = AM_DestroyIndex(DB_NAME, 2);
+  status = AM_CreateIndex(DB_NAME, 2, 'i', 4);
+  tperror(status, "loadCSV: error while creating index\n");
+
+  int indexFD = PF_OpenFile(INDEX_NAME);
+  tperror(status, "loadCSV: error while opening index file\n");
 
   char *tokens[MAX_TOKENS];
   char record[MAX_PAGE_SIZE];
@@ -97,8 +104,9 @@ Schema *loadCSV() {
     int n = split(line, ",", tokens);
     assert(n == sch->numColumns);
     int len = encode(sch, tokens, record, sizeof(record));
-    
+    printf("Len %i\n", len);
     RecId rid;
+<<<<<<< HEAD
     status = Table_Insert(tbl, record, len, &rid); 
     if (status < 0){
       printf("loadCSV: error while inserting into table\n");
@@ -110,11 +118,16 @@ Schema *loadCSV() {
 
     /*
     UNIMPLEMENTED;
+=======
+    status = Table_Insert(tbl, record, len, &rid);
+    tperror(status, "loadCSV: error while inserting into table\n");
+>>>>>>> 548149d14d841311eaeb563ab48afda7adfe1abd
 
     printf("%d %s\n", rid, tokens[0]);
 
     // Indexing on the population column
     int population = atoi(tokens[2]);
+<<<<<<< HEAD
 
     UNIMPLEMENTED;
     // Use the population field as the field to index on
@@ -122,16 +135,15 @@ Schema *loadCSV() {
     checkerr(err);
     */
 
-    printf("\n");
+    status = AM_InsertEntry(indexFD, 'i', 4, tokens[2], rid);
+    tperror(status, "loadCSV: error while inserting into index file\n");
   }
 
   fclose(fp);
   Table_Close(tbl);
 
-  /*
-  err = PF_CloseFile(indexFD);
-  checkerr(err);
-  */
+  status = PF_CloseFile(indexFD);
+  tperror(status, "loadCSV: error while closing index file\n");
 
   return sch;
 }
