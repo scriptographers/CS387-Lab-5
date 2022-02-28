@@ -21,6 +21,11 @@ int getFreeSlot(byte* pageBuf){
     return *getPointer(pageBuf, 0);
 }
 
+void setFreeOffset(byte* pageBuf, int offset){
+    // EXTRA FUNCTION: sets offset value for free slot
+    *getPointer(pageBuf, 0) = offset;
+}
+
 int getLen(int slot, byte *pageBuf){
     // Returns slot size of 'slot'th slot
     if (slot == 0){
@@ -141,6 +146,11 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 {
     int status;
 
+    if (len > PF_PAGE_SIZE){
+        printf("length of record exceed page size\n");
+        exit(EXIT_FAILURE);
+    }
+
     // Open the PF file
     fd = PF_OpenFile(tbl->name);
     tperror(fd, "Table_Close: error while opening file");
@@ -162,8 +172,13 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     }
 
     // Get the next free slot on page, and copy record in the free space
-    // Update slot and free space index information on top of page
+    int offset = getFreeSlot(*pagebuf);
+    memcpy(*pagebuf + offset, record, len);
 
+    // Update slot and free space index information on top of page
+    int nslots = getNumSlots(*pagebuf);
+    setNumSlots(*pagebuf, nslots + 1);
+    setFreeOffset(*pagebuf, offset - len);
 }
 
 /*
