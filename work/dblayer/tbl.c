@@ -66,7 +66,7 @@ void tperror(int status, char* s){
     // EXTRA FUNCTION: prints error
     if (status < 0){ 
         printf("%s\n", s);
-        checkerr(status);
+        PF_PrintError();
     }
 }
 
@@ -87,14 +87,19 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     if (overwrite){
         status = PF_DestroyFile(dbname); 
         tperror(status, "Table_Open: error while destroying file");
+        if (status < 0){ return status; }
     }
 
     fd = PF_OpenFile(dbname);
     if (fd < 0){
         status = PF_CreateFile(dbname);
+
         tperror(status, "Table_Open: error while creating file");
+        if (status < 0){ return status; }
+
         fd = PF_OpenFile(dbname); // now open the newly created file
         tperror(fd, "Table_Open: error while opening the newly created file");
+        if (status < 0){ return status; }
     }
 
     // allocate Table structure, initialize and return via ptable
@@ -102,13 +107,13 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     *ptable = malloc(sizeof(struct Table));
     if (*ptable == NULL){
         printf("Table_Open: Malloc error while table init\n");
-        exit(EXIT_FAILURE);
+        return -20;
     }
     // Allocate schema space
     *ptable->schema = malloc(sizeof(struct Schema)); 
     if (*ptable->schema == NULL){
         printf("Table_Open: Malloc error while schema init\n");
-        exit(EXIT_FAILURE);
+        return -20;
     }
     // Copy the given schemas and assign metadata
     memcpy(*ptable->schema, schema, sizeof(*ptable->schema));
@@ -126,6 +131,7 @@ Table_Close(Table *tbl)
     // Open the PF file
     fd = PF_OpenFile(tbl->name);
     tperror(fd, "Table_Close: error while opening file");
+    if (fd < 0){ return; }
 
     // Unfix any dirty pages
     for (int i = 0; i < tbl->numPages; i++){
@@ -133,11 +139,13 @@ Table_Close(Table *tbl)
         // TBD: better method would be to track dirty pages in table struct
         status = PF_UnfixPage(fd, i, true);
         tperror(status, "Table_Close: error while unfixing page");
+        if (status < 0){ return; }
     }
 
     // Close PF file
     status = PF_CloseFile(fd);
     tperror(status, "Table_Close: error while closing file");
+    if (status < 0){ return; }
 }
 
 
@@ -149,12 +157,13 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     if (len > PF_PAGE_SIZE){
         printf("length of record exceed page size\n");
-        exit(EXIT_FAILURE);
+        return -21;
     }
 
     // Open the PF file
     fd = PF_OpenFile(tbl->name);
     tperror(fd, "Table_Close: error while opening file");
+    if (fd < 0){ return fd; }
 
     // Declare pointer to the pointer to the buffer
     byte** pagebuf;
@@ -163,6 +172,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     int num_pages = tbl->numPages;
     status = PF_GetThisPage(fd, num_pages - 1, pagebuf);
     tperror(status, "Table_Insert: error while opening page");
+    if (status < 0){ return status; }
     *ppagenum = num_pages - 1;
 
     // Allocate a fresh page if len is not enough for remaining space
@@ -171,6 +181,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         // allocate new page
         status = PF_AllocPage(fd, ppagenum, pagebuf);
         tperror(status, "Table_Insert: error while allocating page");
+        if (status < 0){ return status; }
     }
 
     // Get the next free slot on page, and copy record in the free space
