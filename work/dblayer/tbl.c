@@ -200,10 +200,11 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     // Allocate a fresh page if len is not enough for remaining space
     if (rem < len){
-        // allocate new page
         status = PF_AllocPage(fd, ppagenum, pagebuf);
+        printf("hello\n");
         tperror(status, "Table_Insert: error while allocating page");
         if (status < 0){ return status; }
+        tbl->numPages++;
     }
 
     // Get the next free slot on page, and copy record in the free space
