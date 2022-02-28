@@ -124,7 +124,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     }
     // Copy the given schemas and assign metadata
     memcpy((*ptable)->schema, schema, sizeof((*ptable)->schema));
-    (*ptable)->numPages = 1;
+    (*ptable)->numPages = 0;
     (*ptable)->name = strdup(dbname);
 
     // Close PF file
