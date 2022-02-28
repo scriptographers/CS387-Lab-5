@@ -28,14 +28,15 @@ void setFreeOffset(byte* pageBuf, int offset){
 
 int getLen(int slot, byte *pageBuf){
     // Returns slot size of 'slot'th slot
+    int size;
     if (slot == 0){
         // first slot at the bottom of the page
-        int size = PF_PAGE_SIZE - *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET);
+        size = PF_PAGE_SIZE - *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET);
     }
     else{
         int off_prev = *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET - 1);
         int off_cur = *getPointer(pageBuf, slot + SLOT_COUNT_OFFSET);
-        int size = off_prev - off_cur; // off_prev > off_cur
+        size = off_prev - off_cur; // off_prev > off_cur
     }
     return size;
 }
@@ -104,21 +105,21 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 
     // allocate Table structure, initialize and return via ptable
 
-    *ptable = malloc(sizeof(struct Table));
+    *ptable = malloc(sizeof(Table));
     if (*ptable == NULL){
         printf("Table_Open: Malloc error while table init\n");
         return -20;
     }
     // Allocate schema space
-    *ptable->schema = malloc(sizeof(struct Schema)); 
-    if (*ptable->schema == NULL){
+    (*ptable)->schema = malloc(sizeof(Schema)); 
+    if ((*ptable)->schema == NULL){
         printf("Table_Open: Malloc error while schema init\n");
         return -20;
     }
     // Copy the given schemas and assign metadata
-    memcpy(*ptable->schema, schema, sizeof(*ptable->schema));
-    *ptable->numPages = 1;
-    *ptable->name = strdup(dbname);
+    memcpy((*ptable)->schema, schema, sizeof((*ptable)->schema));
+    (*ptable)->numPages = 1;
+    (*ptable)->name = strdup(dbname);
 
     // Close PF file
     status = PF_CloseFile(fd);
@@ -131,7 +132,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 void
 Table_Close(Table *tbl) 
 {
-    int status;
+    int status, fd;
 
     // Open the PF file
     fd = PF_OpenFile(tbl->name);
@@ -157,7 +158,7 @@ Table_Close(Table *tbl)
 int
 Table_Insert(Table *tbl, byte *record, int len, RecId *rid) 
 {
-    int status;
+    int status, fd;
     int* ppagenum; // pointer to page number
     byte** pagebuf; // pointer to the pointer to the buffer
 
@@ -213,7 +214,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 int
 Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) 
 {
-    int status;
+    int status, fd;
     byte** pagebuf; // pointer to the pointer to the buffer
 
     int slot = rid & 0xFFFF;
@@ -233,7 +234,7 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen)
 
     // Get length of the record
     int rlen = getLen(slot, *pagebuf);
-    int clen = (rlen > max_len) ? maxlen : rlen;
+    int clen = (rlen > maxlen) ? maxlen : rlen;
 
     // memcpy bytes into the record supplied
     memcpy(record, *pagebuf + offset, clen);
@@ -254,7 +255,7 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen)
 void
 Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) 
 {
-    int status;
+    int status, fd;
     int* ppagenum = -1;
     byte** pagebuf; // pointer to the pointer to the buffer
 
