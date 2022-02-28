@@ -58,7 +58,8 @@ int getNthSlotOffset(int slot, char* pageBuf){
 int remainingSpace(byte* pageBuf){
     // EXTRA FUNCTION: Returns total free space value in the page
     int nslots = getNumSlots(pageBuf);
-    int last_offset = *getPointer(pageBuf, nslots - 1 + SLOT_COUNT_OFFSET);
+    int last_offset = getNthSlotOffset(nslots - 1, pageBuf);
+    printf("offset: %d\n", last_offset);
     int rem = PF_PAGE_SIZE - last_offset;
     return rem;
 }
@@ -188,11 +189,11 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     int rem;
     int num_pages = tbl->numPages;
     if (num_pages > 0){
-        status = PF_GetThisPage(fd, num_pages - 1, pagebuf);
+        status = PF_GetThisPage(fd, num_pages - 1, &pagebuf);
         tperror(status, "Table_Insert: error while opening page");
         if (status < 0){ return status; }
         pagenum = num_pages - 1;
-        rem = remainingSpace(*pagebuf);
+        rem = remainingSpace(pagebuf);
     }
     else{
         rem = 0;
@@ -204,11 +205,12 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         tperror(status, "Table_Insert: error while allocating page");
         if (status < 0){ return status; }
         tbl->numPages++;
+        setNumSlots(pagebuf, 0);
     }
 
     // Get the next free slot on page, and copy record in the free space
     int offset = getFreeSlot(pagebuf);
-    memcpy(pagebuf + offset, record, len);
+    memcpy(pagebuf + offset - len + SLOT_COUNT_OFFSET, record, len);
 
     // Update slot and free space index information on top of page
     int nslots = getNumSlots(pagebuf);
@@ -216,6 +218,10 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     setFreeOffset(pagebuf, offset - len);
 
     *rid = pagenum << 16 + nslots;
+
+    printf("done\n");
+    int temp = remainingSpace(pagebuf);
+    printf("rem: %d", temp);
 
     // Unfix the page
     status = PF_UnfixPage(fd, pagenum, true);

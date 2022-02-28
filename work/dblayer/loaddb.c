@@ -91,7 +91,7 @@ Schema *loadCSV() {
   char record[MAX_PAGE_SIZE];
 
   while ((line = fgets(buf, MAX_LINE_LEN, fp)) != NULL) {
-    printf("Hi: %s", line);
+    printf("Data: %s", line);
     fflush(stdout);
 
     int n = split(line, ",", tokens);
@@ -106,7 +106,7 @@ Schema *loadCSV() {
     }
     // AM_InsertEntry(index field, rid)
 
-    printf("Hi: %d\n", rid);
+    printf("RID: %d\n", rid);
 
     /*
     UNIMPLEMENTED;
@@ -121,6 +121,8 @@ Schema *loadCSV() {
 
     checkerr(err);
     */
+
+    printf("\n");
   }
 
   fclose(fp);
