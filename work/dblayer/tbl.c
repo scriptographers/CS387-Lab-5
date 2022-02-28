@@ -62,7 +62,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 
     int status, fd;
 
-    // Initialize PF, create PF file,
+    // Initialize PF, create PF file
     PF_Init();
 
     if (overwrite){
@@ -76,20 +76,23 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
             printf("Table_Open: Error while creating the file\n");
             return status;
         }
+        fd = PF_OpenFile(dbname); // now open the newly created file
     }
 
     // allocate Table structure, initialize and return via ptable
-
+    
     *ptable = malloc(sizeof(struct Table));
     if (*ptable == NULL){
         printf("Table_Open: Malloc error while table init\n");
         return -1;
     }
+    // Allocate schema space
     *ptable->schema = malloc(sizeof(struct Schema)); 
     if (*ptable->schema == NULL){
         printf("Table_Open: Malloc error while schema init\n");
         return -1;
     }
+    // Copy the given schemas and assign metadata
     memcpy(*ptable->schema, schema, sizeof(*ptable->schema));
     *ptable->numPages = 1;
     *ptable->name = strdup(dbname);
