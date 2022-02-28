@@ -153,20 +153,18 @@ int
 Table_Insert(Table *tbl, byte *record, int len, RecId *rid) 
 {
     int status;
-    int* ppagenum;
+    int* ppagenum; // pointer to page number
+    byte** pagebuf; // pointer to the pointer to the buffer
 
     if (len > PF_PAGE_SIZE){
-        printf("length of record exceed page size\n");
+        printf("Table_Insert: length of record exceed page size\n");
         return -21;
     }
 
     // Open the PF file
     fd = PF_OpenFile(tbl->name);
-    tperror(fd, "Table_Close: error while opening file");
+    tperror(fd, "Table_Insert: error while opening file");
     if (fd < 0){ return fd; }
-
-    // Declare pointer to the pointer to the buffer
-    byte** pagebuf;
 
     // Get the last page
     int num_pages = tbl->numPages;
@@ -195,6 +193,11 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     *rid = (*ppagenum) << 16 + nslots;
 
+    // Close PF file
+    status = PF_CloseFile(fd);
+    tperror(status, "Table_Insert: error while closing file");
+    if (status < 0){ return; }
+
     return 0;
 }
 
@@ -205,15 +208,42 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 int
 Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) 
 {
+    int status;
+    byte** pagebuf; // pointer to the pointer to the buffer
+
     int slot = rid & 0xFFFF;
     int pageNum = rid >> 16;
 
-    UNIMPLEMENTED;
-    // PF_GetThisPage(pageNum)
-    // In the page get the slot offset of the record, and
-    // memcpy bytes into the record supplied.
+    // Open the PF file
+    fd = PF_OpenFile(tbl->name);
+    tperror(fd, "Table_Get: error while opening file");
+    if (fd < 0){ return fd; }
+
+    status = PF_GetThisPage(fd, pageNum, pagebuf);
+    tperror(status, "Table_Get: error while opening page");
+    if (status < 0){ return status; }
+
+    // In the page get the slot offset of the record
+    int offset = getNthSlotOffset(slot, *pagebuf);
+
+    // Get length of the record
+    int rlen = getLen(slot, *pagebuf);
+    int clen = (rlen > max_len) ? maxlen : rlen;
+
+    // memcpy bytes into the record supplied
+    memcpy(record, *pagebuf + offset, clen);
+
     // Unfix the page
-    return len; // return size of record
+    status = PF_UnfixPage(fd, pageNum, true);
+    tperror(status, "Table_Get: error while unfixing page");
+    if (status < 0){ return; }
+
+    // Close PF file
+    status = PF_CloseFile(fd);
+    tperror(status, "Table_Get: error while closing file");
+    if (status < 0){ return; }
+
+    return slen; // return number of bytes copied
 }
 
 void
