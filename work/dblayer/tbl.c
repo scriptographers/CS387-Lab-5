@@ -11,7 +11,7 @@
 #define checkerr(err) {if (err < 0) {PF_PrintError(); exit(EXIT_FAILURE);}}
 
 int* getPointer(byte* pageBuf, int i){
-    // EXTRA FUNCTION: Returns (integer) pointer to ith position
+    // EXTRA FUNCTION: Returns integer pointer to ith position
     int* p = ((int*) pageBuf) + i;
     return p;
 }
