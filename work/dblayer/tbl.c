@@ -185,14 +185,20 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     if (fd < 0){ return fd; }
 
     // Get the last page
+    int rem;
     int num_pages = tbl->numPages;
-    status = PF_GetThisPage(fd, num_pages - 1, pagebuf);
-    tperror(status, "Table_Insert: error while opening page");
-    if (status < 0){ return status; }
-    *ppagenum = num_pages - 1;
+    if (num_pages > 0){
+        status = PF_GetThisPage(fd, num_pages - 1, pagebuf);
+        tperror(status, "Table_Insert: error while opening page");
+        if (status < 0){ return status; }
+        *ppagenum = num_pages - 1;
+        rem = remainingSpace(*pagebuf);
+    }
+    else{
+        rem = 0;
+    }
 
     // Allocate a fresh page if len is not enough for remaining space
-    int rem = remainingSpace(*pagebuf);
     if (rem < len){
         // allocate new page
         status = PF_AllocPage(fd, ppagenum, pagebuf);
