@@ -6,7 +6,7 @@ a.out*
 *~
 
 # dblayer
-dumbdb
+dumpdb
 loaddb
 data.db*
 *.db
