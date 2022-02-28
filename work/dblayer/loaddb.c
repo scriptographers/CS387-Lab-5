@@ -58,12 +58,17 @@ Schema *loadCSV() {
   Schema *sch = parseSchema(line);
   Table *tbl;
 
+  Table_Open(DB_NAME, sch, true, &tbl);
+
   /* UNIMPLEMENTED; */
 
   char *tokens[MAX_TOKENS];
   char record[MAX_PAGE_SIZE];
 
   while ((line = fgets(buf, MAX_LINE_LEN, fp)) != NULL) {
+    printf("Hi: %s", line);
+    fflush(stdout);
+
     int n = split(line, ",", tokens);
     assert(n == sch->numColumns);
     int len = encode(sch, tokens, record, sizeof(record));
