@@ -248,7 +248,7 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen)
     // Unfix the page
     status = PF_UnfixPage(fd, pageNum, true);
     tperror(status, "Table_Get: error while unfixing page");
-    if (status < 0){ return; }
+    if (status < 0){ return status; }
 
     // Close PF file
     status = PF_CloseFile(fd);
@@ -262,13 +262,13 @@ void
 Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) 
 {
     int status, fd;
-    int* ppagenum = -1;
+    int* ppagenum; *ppagenum = -1;
     byte** pagebuf; // pointer to the pointer to the buffer
 
     // Open the PF file
     fd = PF_OpenFile(tbl->name);
     tperror(fd, "Table_Scan: error while opening file");
-    if (fd < 0){ return fd; }
+    if (fd < 0){ return; }
 
     // Scan
     int rid, nslots, rlen, offset;
@@ -290,7 +290,7 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
     // Close PF file
     status = PF_CloseFile(fd);
     tperror(status, "Table_Scan: error while closing file");
-    if (status < 0){ return status; }
+    if (status < 0){ return; }
 }
 
 // TBD: will probably have to unfix pages each time they're modified
