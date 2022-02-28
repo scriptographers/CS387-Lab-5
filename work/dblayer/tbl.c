@@ -49,6 +49,21 @@ int getNthSlotOffset(int slot, char* pageBuf){
     return offset;
 }
 
+int remainingSpace(byte* pageBuf){
+    // EXTRA FUNCTION: Returns total free space value in the page
+    int nslots = getNumSlots(pageBuf);
+    int last_offset = *getPointer(pageBuf, nslots - 1 + SLOT_COUNT_OFFSET);
+    int rem = PF_PAGE_SIZE - last_offset;
+    return rem;
+}
+
+void tperror(int status, char* s){
+    // EXTRA FUNCTION: prints error
+    if (status < 0){ 
+        printf("%s\n", s);
+        checkerr(status);
+    }
+}
 
 /**
    Opens a paged file, creating one if it doesn't exist, and optionally
@@ -59,7 +74,6 @@ int getNthSlotOffset(int slot, char* pageBuf){
 int
 Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 {
-
     int status, fd;
 
     // Initialize PF, create PF file
@@ -67,16 +81,15 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 
     if (overwrite){
         status = PF_DestroyFile(dbname); 
+        tperror(status, "Table_Open: error while destroying file");
     }
 
     fd = PF_OpenFile(dbname);
     if (fd < 0){
         status = PF_CreateFile(dbname);
-        if (status != PFE_OK){
-            printf("Table_Open: Error while creating the file\n");
-            exit(EXIT_FAILURE);
-        }
+        tperror(status, "Table_Open: error while creating file");
         fd = PF_OpenFile(dbname); // now open the newly created file
+        tperror(fd, "Table_Open: error while opening the newly created file");
     }
 
     // allocate Table structure, initialize and return via ptable
@@ -101,54 +114,65 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 }
 
 void
-Table_Close(Table *tbl) {
-
+Table_Close(Table *tbl) 
+{
     int status;
 
     // Open the PF file
-    fd = PF_OpenFile(dbname);
-    if (fd < 0){
-        printf("Table_Close: error while opening\n");
-        exit(EXIT_FAILURE);
-    }
+    fd = PF_OpenFile(tbl->name);
+    tperror(fd, "Table_Close: error while opening file");
 
     // Unfix any dirty pages
     for (int i = 0; i < tbl->numPages; i++){
-        // TBD: check if page is dirty
-        int dirty = true;
-        status = PF_UnfixPage(fd, i, dirty);
-        if (status != PFE_OK){
-            printf("Table_Close: error while unfixing page %d\n", i);
-            exit(EXIT_FAILURE);
-        }
+        // always set dirty = true 
+        // TBD: better method would be to track dirty pages in table struct
+        status = PF_UnfixPage(fd, i, true);
+        tperror(status, "Table_Close: error while unfixing page");
     }
 
     // Close PF file
     status = PF_CloseFile(fd);
-    if (status != PFE_OK){
-        printf("Table_Close: error while closing\n");
-        exit(EXIT_FAILURE);
-    }
-
+    tperror(status, "Table_Close: error while closing file");
 }
 
 
 int
-Table_Insert(Table *tbl, byte *record, int len, RecId *rid) {
-    // Allocate a fresh page if len is not enough for remaining space
-    // Get the next free slot on page, and copy record in the free
-    // space
-    // Update slot and free space index information on top of page.
-}
+Table_Insert(Table *tbl, byte *record, int len, RecId *rid) 
+{
+    int status;
 
-#define checkerr(err) {if (err < 0) {PF_PrintError(); exit(EXIT_FAILURE);}}
+    // Open the PF file
+    fd = PF_OpenFile(tbl->name);
+    tperror(fd, "Table_Close: error while opening file");
+
+    // Declare pointer to the pointer to the buffer
+    byte** pagebuf;
+
+    // Get the last page
+    int num_pages = tbl->numPages;
+    status = PF_GetThisPage(fd, num_pages - 1, pagebuf);
+    tperror(status, "Table_Insert: error while opening page");
+
+    // Allocate a fresh page if len is not enough for remaining space
+    int rem = remainingSpace(*pagebuf);
+    if (rem < len){
+        // allocate new page
+        status = PF_AllocPage(fd, ppagenum, pagebuf);
+        tperror(status, "Table_Insert: error while allocating page");
+    }
+
+    // Get the next free slot on page, and copy record in the free space
+    // Update slot and free space index information on top of page
+
+}
 
 /*
   Given an rid, fill in the record (but at most maxlen bytes).
   Returns the number of bytes copied.
  */
 int
-Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) {
+Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) 
+{
     int slot = rid & 0xFFFF;
     int pageNum = rid >> 16;
 
@@ -161,8 +185,8 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) {
 }
 
 void
-Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) {
-
+Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) 
+{
     UNIMPLEMENTED;
 
     // For each page obtained using PF_GetFirstPage and PF_GetNextPage
