@@ -106,7 +106,7 @@ Schema *loadCSV() {
     int len = encode(sch, tokens, record, sizeof(record));
     printf("Len %i\n", len);
     RecId rid;
-<<<<<<< HEAD
+
     status = Table_Insert(tbl, record, len, &rid); 
     if (status < 0){
       printf("loadCSV: error while inserting into table\n");
