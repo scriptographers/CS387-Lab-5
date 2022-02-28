@@ -29,6 +29,27 @@
  * in codec.c to convert strings into compact binary representations
  */
 int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
+  int n = sch->numColumns;
+  for (int i = 0; i < n; ++i) {
+    printf("%s: %s\n", sch->columns[i]->name, fields[i]);
+    switch (sch->columns[i]->type) {
+    case VARCHAR:
+      spaceLeft -= EncodeCString(fields[i], record, strlen(fields[i]));
+      break;
+
+    case INT:
+      spaceLeft -= EncodeInt(atoi(fields[i]), record);
+      break;
+
+    case LONG:
+      spaceLeft -= EncodeLong(atoll(fields[i]), record);
+      break;
+
+    default:
+      printf("Unknown type %d\n", sch->columns[i]->type);
+      break;
+    }
+  }
   //   UNIMPLEMENTED;
   // for each field
   //    switch corresponding schema type is
@@ -36,7 +57,7 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
   //        INT : EncodeInt
   //        LONG: EncodeLong
   // return the total number of bytes encoded into record
-  return 0;
+  return sizeof(record) - spaceLeft;
 }
 
 Schema *loadCSV() {
@@ -74,6 +95,7 @@ Schema *loadCSV() {
     int len = encode(sch, tokens, record, sizeof(record));
     RecId rid;
 
+    printf("Hi %i\n", len);
     /*
     UNIMPLEMENTED;
 
