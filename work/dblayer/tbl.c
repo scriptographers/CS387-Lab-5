@@ -277,7 +277,8 @@ int
 Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) 
 {
     int status, fd;
-    byte** pagebuf; // pointer to the pointer to the buffer
+    byte* pagebuf; // pointer to the buffer
+    // maxlen is in bytes
 
     int slot = rid & 0xFFFF;
     int pageNum = rid >> 16;
@@ -287,19 +288,19 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen)
     tperror(fd, "Table_Get: error while opening file");
     if (fd < 0){ return fd; }
 
-    status = PF_GetThisPage(fd, pageNum, pagebuf);
+    status = PF_GetThisPage(fd, pageNum, &pagebuf);
     tperror(status, "Table_Get: error while opening page");
     if (status < 0){ return status; }
 
     // In the page get the slot offset of the record
-    int offset = getNthSlotOffset(slot, *pagebuf);
+    int offset = getNthSlotOffset(slot, pagebuf); // in bytes
 
     // Get length of the record
-    int rlen = getLen(slot, *pagebuf);
+    int rlen = getLen(slot, pagebuf); // in bytes
     int clen = (rlen > maxlen) ? maxlen : rlen;
 
-    // memcpy bytes into the record supplied
-    memcpy(record, *pagebuf + offset, clen);
+    // memcpy clen bytes into the record supplied starting from the specified offset
+    memcpy(record, pagebuf + offset, clen);
 
     // Unfix the page
     status = PF_UnfixPage(fd, pageNum, true);
