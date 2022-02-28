@@ -17,17 +17,17 @@ int* getPointer(byte* pageBuf, int i){
 }
 
 int getFreeSlot(byte* pageBuf){
-    // EXTRA FUNCTION: Returns offset value for the free slot
+    // EXTRA FUNCTION: Returns offset value (in bytes) for the free slot
     return *getPointer(pageBuf, 0);
 }
 
 void setFreeOffset(byte* pageBuf, int offset){
-    // EXTRA FUNCTION: sets offset value for free slot
+    // EXTRA FUNCTION: sets offset value (in bytes) for free slot
     *getPointer(pageBuf, 0) = offset;
 }
 
 int getLen(int slot, byte *pageBuf){
-    // Returns slot size of 'slot'th slot
+    // Returns slot size (in bytes) of 'slot'th slot
     int size;
     if (slot == 0){
         // first slot at the bottom of the page
@@ -42,27 +42,30 @@ int getLen(int slot, byte *pageBuf){
 }
 
 int getNumSlots(byte *pageBuf){
+    // Return number of slots
     int nslots = *getPointer(pageBuf, 1);
     return nslots;
 }
 
 void setNumSlots(byte *pageBuf, int nslots){
+    // Set number of slots
     *getPointer(pageBuf, 1) = nslots;
 }
 
 int getNthSlotOffset(int slot, char* pageBuf){
+    // Returns offset value of the nth slot in bytes
     int offset = *getPointer(pageBuf, SLOT_COUNT_OFFSET + slot);
     return offset;
 }
 
 int remainingSpace(byte* pageBuf){
-    // EXTRA FUNCTION: Returns total free space value (in 4s of bytes) in the page
+    // EXTRA FUNCTION: Returns total free space value (in bytes) in the page
     int nslots = getNumSlots(pageBuf);
-    int free_start = (SLOT_COUNT_OFFSET + nslots);
+    int free_start = 4*(SLOT_COUNT_OFFSET + nslots);
     int free_end = getFreeSlot(pageBuf);
     int rem = free_end - free_start;
     if (rem < 0){
-        printf("remainingSpace = %d\n", rem);
+        printf("error, remainingSpace = %d\n", rem);
         exit(EXIT_FAILURE);
     }
     printf("free start: %d, free end: %d, rem: %d\n", free_start, free_end, rem);
@@ -183,7 +186,9 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     int status, fd;
     int pagenum; // page number
     byte* pagebuf; // pointer to the buffer
+    // len is in bytes
 
+    // Check if len exceeds page_size
     if (len > PF_PAGE_SIZE){
         printf("Table_Insert: length of record exceed page size\n");
         return -21;
@@ -198,47 +203,51 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     int rem;
     int num_pages = tbl->numPages;
     if (num_pages > 0){
+
         status = PF_GetThisPage(fd, num_pages - 1, &pagebuf);
         tperror(status, "Table_Insert: error while opening page");
         if (status < 0){ return status; }
+
         pagenum = num_pages - 1;
         printf("old page %d\n", pagenum);
         rem = remainingSpace(pagebuf);
+
     }
-    else{
+    else
         rem = 0;
-    }
 
     // Allocate a fresh page if len is not enough for remaining space
     if (rem < len){
-
-        // Unfix previous page
+        // Unfix previous page if fixed
         if (num_pages > 0){
-            status = PF_UnfixPage(fd, num_pages - 1, false);
+            status = PF_UnfixPage(fd, pagenum, false);
             tperror(status, "Table_Insert: error while unfixing space constrained page");
             if (status < 0){ return status; }
         }
 
-        status = PF_AllocPage(fd, &pagenum, &pagebuf);
+        status = PF_AllocPage(fd, &pagenum, &pagebuf); // allocate new page
         tperror(status, "Table_Insert: error while allocating page");
         if (status < 0){ return status; }
+
+        // Update metdata
         tbl->numPages++;
         setNumSlots(pagebuf, 0);
-        setFreeOffset(pagebuf, PF_PAGE_SIZE/4);
+        setFreeOffset(pagebuf, PF_PAGE_SIZE);
         printf("length not enough, new page %d\n", pagenum);
         int temp = remainingSpace(pagebuf);
     }
 
     // Get the next free slot on page, and copy record in the free space
-    int free_offset = getFreeSlot(pagebuf);
-    int slot_offset = free_offset - len;
+    int nslots = getNumSlots(pagebuf);
+    int free_offset = getFreeSlot(pagebuf); // in bytes
+    int slot_offset = free_offset - len; // in bytes
     printf("free offset: %d, slot_offset: %d\n", free_offset, slot_offset);
 
-    // Update slot and free space index information on top of page
-    int nslots = getNumSlots(pagebuf);
+    // Update number of slots
     setNumSlots(pagebuf, nslots + 1);
+    // Set new free offset
     setFreeOffset(pagebuf, slot_offset);
-    int loc_slot_offset = SLOT_COUNT_OFFSET + nslots + 1;
+    int loc_slot_offset = SLOT_COUNT_OFFSET + nslots + 1; // in 4s of bytes
     printf("location of slot offset: %d\n", loc_slot_offset);
     *getPointer(pagebuf, loc_slot_offset) = slot_offset;
 
