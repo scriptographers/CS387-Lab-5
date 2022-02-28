@@ -15,15 +15,20 @@
     }                                                                          \
   }
 
+#define DB_NAME "data.db"
+#define INDEX_NAME "data.db.2"
+
+extern void tperror(int, char *);
+
 void printRow(void *callbackObj, RecId rid, byte *row, int len) {
   Schema *schema = (Schema *)callbackObj;
   byte *cursor = row;
+
+  printf("%i: %s", rid, row);
 }
 
-#define DB_NAME "data.db"
-#define INDEX_NAME "data.db.0"
-
 void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value) {
+  printf("%i: %i\n", op, value);
   /*
   Open index ...
   while (true) {
@@ -36,22 +41,60 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value) {
 }
 
 int main(int argc, char **argv) {
+
+  if (argc < 2) {
+    printf("Wrong Usage\n");
+    exit(1);
+  }
+
+  int status;
+
   char *schemaTxt = "Country:varchar,Capital:varchar,Population:int";
-  Schema *schema = parseSchema(schemaTxt);
+  Schema *sch = parseSchema(schemaTxt);
   Table *tbl;
 
-  if (argc == 2 && *(argv[1]) == 's') {
-    // invoke Table_Scan with printRow, which will be invoked for each row in
-    // the table.
-  } else {
-    // index scan by default
-    int indexFD = PF_OpenFile(INDEX_NAME);
-    checkerr(indexFD);
+  status = Table_Open(DB_NAME, sch, false, &tbl);
+  tperror(status, "DumpDB: error while opening table\n");
 
-    // Ask for populations less than 100000, then more than 100000. Together
-    // they should yield the complete database.
-    index_scan(tbl, schema, indexFD, LESS_THAN_EQUAL, 100000);
-    index_scan(tbl, schema, indexFD, GREATER_THAN, 100000);
+  if (*(argv[1]) == 's') {
+    // Scan the table
+    Table_Scan(tbl, sch, printRow);
+
+  } else if (*(argv[1]) == 'i') {
+    // Index scan
+    int indexFD = PF_OpenFile(INDEX_NAME);
+    tperror(status, "DumbDB: error while opening index file\n");
+
+    if (argc == 4) {
+      // Parse arguments
+      if (strcmp(argv[2], "EQUAL") == 0) {
+        index_scan(tbl, sch, indexFD, EQUAL, atoi(argv[3]));
+      } else if (strcmp(argv[2], "NOT_EQUAL") == 0) {
+        index_scan(tbl, sch, indexFD, NOT_EQUAL, atoi(argv[3]));
+      } else if (strcmp(argv[2], "LESS_THAN") == 0) {
+        index_scan(tbl, sch, indexFD, LESS_THAN, atoi(argv[3]));
+      } else if (strcmp(argv[2], "LESS_THAN_EQUAL") == 0) {
+        index_scan(tbl, sch, indexFD, LESS_THAN_EQUAL, atoi(argv[3]));
+      } else if (strcmp(argv[2], "GREATER_THAN") == 0) {
+        index_scan(tbl, sch, indexFD, GREATER_THAN, atoi(argv[3]));
+      } else if (strcmp(argv[2], "GREATER_THAN_EQUAL") == 0) {
+        index_scan(tbl, sch, indexFD, GREATER_THAN_EQUAL, atoi(argv[3]));
+      } else {
+        printf("Wrong Operation\n");
+        exit(1);
+      }
+
+    } else {
+      // Complete index scan
+      index_scan(tbl, sch, indexFD, LESS_THAN_EQUAL, 100000);
+      index_scan(tbl, sch, indexFD, GREATER_THAN, 100000);
+    }
+
+    status = PF_CloseFile(indexFD);
+    tperror(status, "DumbDB: error while closing index file\n");
   }
+
   Table_Close(tbl);
+
+  return 0;
 }
