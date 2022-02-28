@@ -61,6 +61,9 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
 }
 
 Schema *loadCSV() {
+
+  int status;
+
   // Open csv file, parse schema
   FILE *fp = fopen(CSV_NAME, "r");
   if (!fp) {
@@ -79,7 +82,11 @@ Schema *loadCSV() {
   Schema *sch = parseSchema(line);
   Table *tbl;
 
-  Table_Open(DB_NAME, sch, true, &tbl);
+  status = Table_Open(DB_NAME, sch, true, &tbl);
+  if (status < 0){
+    printf("loadCSV: error while opening table\n");
+    exit(EXIT_FAILURE);
+  }
 
   /* UNIMPLEMENTED; */
 

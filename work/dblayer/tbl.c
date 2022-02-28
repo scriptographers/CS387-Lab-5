@@ -89,7 +89,13 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     // Check existence
     fd = PF_OpenFile(dbname);
     if (fd < 0){
-        file_exists = 0;
+        file_exists = false;
+    }
+    else{
+        // close now to avoid destroy errors
+        status = PF_CloseFile(fd);
+        tperror(status, "Table_Open: error while closing file after checking");
+        if (status < 0){ return status; }
     }
 
     if (overwrite && file_exists){
@@ -98,16 +104,16 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
         if (status < 0){ return status; }
     }
 
-    if (!file_exists){
+    if (!file_exists || overwrite){ // need to create again after destroying
         status = PF_CreateFile(dbname);
-
         tperror(status, "Table_Open: error while creating file");
         if (status < 0){ return status; }
-
-        fd = PF_OpenFile(dbname); // now open the newly created file
-        tperror(fd, "Table_Open: error while opening the newly created file");
-        if (status < 0){ return status; }
     }
+
+    // File guaranteed to exist now
+    fd = PF_OpenFile(dbname);
+    tperror(fd, "Table_Open: error while opening file");
+    if (fd < 0){ return fd; }
 
     // allocate Table structure, initialize and return via ptable
 
