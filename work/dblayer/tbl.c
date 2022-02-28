@@ -81,18 +81,24 @@ int
 Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 {
     int status, fd;
+    bool file_exists = true;
 
     // Initialize PF, create PF file
     PF_Init();
 
-    if (overwrite){
+    // Check existence
+    fd = PF_OpenFile(dbname);
+    if (fd < 0){
+        file_exists = 0;
+    }
+
+    if (overwrite && file_exists){
         status = PF_DestroyFile(dbname); 
         tperror(status, "Table_Open: error while destroying file");
         if (status < 0){ return status; }
     }
 
-    fd = PF_OpenFile(dbname);
-    if (fd < 0){
+    if (!file_exists){
         status = PF_CreateFile(dbname);
 
         tperror(status, "Table_Open: error while creating file");
