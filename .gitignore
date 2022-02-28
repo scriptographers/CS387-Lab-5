@@ -6,6 +6,8 @@ a.out*
 *~
 
 # dblayer
+dumbdb
+loaddb
 data.db*
 *.db
 
