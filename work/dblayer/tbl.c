@@ -217,6 +217,11 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     *rid = pagenum << 16 + nslots;
 
+    // Unfix the page
+    status = PF_UnfixPage(fd, pagenum, true);
+    tperror(status, "Table_Insert: error while unfixing page");
+    if (status < 0){ return status; }
+
     // Close PF file
     status = PF_CloseFile(fd);
     tperror(status, "Table_Insert: error while closing file");
