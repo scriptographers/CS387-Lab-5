@@ -64,11 +64,11 @@ int remainingSpace(byte* pageBuf){
     int free_start = 4*(SLOT_COUNT_OFFSET + nslots);
     int free_end = getFreeSlot(pageBuf);
     int rem = free_end - free_start;
-    if (rem < 0){
+    if (rem < 0){ // just a sanity check
         printf("error, remainingSpace = %d\n", rem);
         exit(EXIT_FAILURE);
     }
-    printf("free start: %d, free end: %d, rem: %d\n", free_start, free_end, rem);
+    // printf("free start: %d, free end: %d, rem: %d\n", free_start, free_end, rem);
     fflush(stdout);
     return rem;
 }
@@ -209,7 +209,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         if (status < 0){ return status; }
 
         pagenum = num_pages - 1;
-        printf("old page %d\n", pagenum);
+        // printf("old page %d\n", pagenum);
         rem = remainingSpace(pagebuf);
 
     }
@@ -233,7 +233,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         tbl->numPages++;
         setNumSlots(pagebuf, 0);
         setFreeOffset(pagebuf, PF_PAGE_SIZE);
-        printf("length not enough, new page %d\n", pagenum);
+        // printf("length not enough, new page %d\n", pagenum);
         int temp = remainingSpace(pagebuf);
     }
 
@@ -241,20 +241,20 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     int nslots = getNumSlots(pagebuf);
     int free_offset = getFreeSlot(pagebuf); // in bytes
     int slot_offset = free_offset - len; // in bytes
-    printf("free offset: %d, slot_offset: %d\n", free_offset, slot_offset);
+    // printf("free offset: %d, slot_offset: %d\n", free_offset, slot_offset);
 
     // Update number of slots
     setNumSlots(pagebuf, nslots + 1);
     // Set new free offset
     setFreeOffset(pagebuf, slot_offset);
     int loc_slot_offset = SLOT_COUNT_OFFSET + nslots + 1; // in 4s of bytes
-    printf("location of slot offset: %d\n", loc_slot_offset);
+    // printf("location of slot offset: %d\n", loc_slot_offset);
     *getPointer(pagebuf, loc_slot_offset) = slot_offset;
 
     // Compute RID
     int page_bits = pagenum << 16;
     *rid = page_bits + nslots;
-    printf("new nslots: %d, RID: %d\n", getNumSlots(pagebuf), *rid);
+    // printf("new nslots: %d, RID: %d\n", getNumSlots(pagebuf), *rid);
 
     // Unfix the page
     status = PF_UnfixPage(fd, pagenum, true);
@@ -348,5 +348,3 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
     tperror(status, "Table_Scan: error while closing file");
     if (status < 0){ return; }
 }
-
-// TBD: will probably have to unfix pages each time they're modified
