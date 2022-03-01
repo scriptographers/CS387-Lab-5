@@ -259,9 +259,9 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     (*rid) = page_bits + nslots;
     // printf("new nslots: %d, RID: %d\n", getNumSlots(pagebuf), *rid);
 
-    int rem_after = remainingSpace(pagebuf);
-    printf("pageNum: %d, freeSpace: %d, len: %d, rid: %d\n", pagenum, rem_after, len, *rid);
-    fflush(stdout);
+    //int rem_after = remainingSpace(pagebuf);
+    //printf("pageNum: %d, freeSpace: %d, len: %d, rid: %d\n", pagenum, rem_after, len, *rid);
+    //fflush(stdout);
 
     // Unfix the page
     status = PF_UnfixPage(fd, pagenum, true);
