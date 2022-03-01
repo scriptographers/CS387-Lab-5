@@ -25,9 +25,9 @@ extern void tperror(int, char *);
 
 void printRow(void *callbackObj, RecId rid, byte *row, int len) {
 
-  printf("RID: %i\n", rid);
-  printf("Len: %i\n", len);
-  printf("Record: %s\n", row);
+  // printf("RID: %i\n", rid);
+  // printf("Len: %i\n", len);
+  // printf("Record: %s\n", row);
 
   Schema *sch = (Schema *)callbackObj;
   byte *cursor = row;
@@ -38,43 +38,43 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len) {
 
   int n = sch->numColumns;
   for (int i = 0; i < n; ++i) {
-    // printf("%s: %s\n", sch->columns[i]->name, fields[i]);
     switch (sch->columns[i]->type) {
     case VARCHAR: {
-      printf("Remaining len: %i\n", len);
       int size = DecodeCString(cursor, str, len);
       cursor += (size + 2);
       len -= (size + 2);
-      printf("%i: %s\n", size, str);
-      fflush(stdout);
+
       memcpy(res + res_len, str, size);
       res_len += size;
+
       res[res_len] = ',';
       res_len += 1;
+
       break;
     }
+
     case INT: {
-      printf("Remaining len: %i\n", len);
       int val = DecodeInt(cursor);
       cursor += 2;
       len -= 2;
-      printf("%i\n", val);
-      fflush(stdout);
+
       res_len += snprintf(res + res_len, MAX_PAGE_SIZE, "%i", val);
+
       res[res_len] = ',';
       res_len += 1;
+
       break;
     }
     case LONG: {
-      printf("Remaining len: %i\n", len);
       long long val = DecodeLong(cursor);
       cursor += 4;
       len -= 4;
-      printf("%lld\n", val);
-      fflush(stdout);
+
       res_len += snprintf(res + res_len, MAX_PAGE_SIZE, "%lld", val);
+
       res[res_len] = ',';
       res_len += 1;
+
       break;
     }
     default:
@@ -83,7 +83,7 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len) {
     }
   }
   res[res_len - 1] = '\0';
-  printf("Output: %i: %s\n", rid, res);
+  printf("%s\n", res);
 }
 
 void index_scan(Table *tbl, Schema *schema, int indexFD, int op, char *value) {
