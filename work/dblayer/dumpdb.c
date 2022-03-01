@@ -144,8 +144,6 @@ int main(int argc, char **argv) {
       // Parse arguments
       if (strcmp(argv[2], "EQUAL") == 0) {
         index_scan(tbl, sch, indexFD, EQUAL, atoi(argv[3]));
-      } else if (strcmp(argv[2], "NOT_EQUAL") == 0) {
-        index_scan(tbl, sch, indexFD, NOT_EQUAL, atoi(argv[3]));
       } else if (strcmp(argv[2], "LESS_THAN") == 0) {
         index_scan(tbl, sch, indexFD, LESS_THAN, atoi(argv[3]));
       } else if (strcmp(argv[2], "LESS_THAN_EQUAL") == 0) {
