@@ -41,7 +41,7 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
     switch (sch->columns[i]->type) {
 
     case VARCHAR: {
-      // encode field value into 'size' bytes from record[len]
+      // Encode field value into 'size' bytes from record[len]
       int size = EncodeCString(fields[i], record + len, spaceLeft);
       len += size;
       spaceLeft -= size;
@@ -49,7 +49,7 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
     }
 
     case INT: {
-      // encode field value into 'size' (4) bytes from record[len]
+      // Encode field value into 'size' (4) bytes from record[len]
       int size = EncodeInt(atoi(fields[i]), record + len);
       len += size;
       spaceLeft -= size;
@@ -57,7 +57,7 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
     }
 
     case LONG: {
-      // encode field value into 'size' (8) bytes from record[len]
+      // Encode field value into 'size' (8) bytes from record[len]
       int size = EncodeLong(atoll(fields[i]), record + len);
       len += size;
       spaceLeft -= size;
@@ -99,9 +99,9 @@ Schema *loadCSV() {
 
   // Parse Schema
   Schema *sch = parseSchema(line);
-  Table *tbl;
 
   // Open main db file
+  Table *tbl;
   status = Table_Open(DB_NAME, sch, true, &tbl);
   lerror(status, "LoadDB: error while opening table\n");
 

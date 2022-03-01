@@ -149,9 +149,9 @@ int main(int argc, char **argv) {
   // Parse schema
   char *schemaTxt = "Country:varchar,Capital:varchar,Population:int";
   Schema *sch = parseSchema(schemaTxt);
-  Table *tbl;
 
   // Open main db file
+  Table *tbl;
   status = Table_Open(DB_NAME, sch, false, &tbl);
   derror(status, "DumpDB: error while opening table\n");
 
