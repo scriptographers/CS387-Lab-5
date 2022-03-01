@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../amlayer/am.h"
 #include "../pflayer/pf.h"
@@ -23,10 +24,48 @@
 extern void tperror(int, char *);
 
 void printRow(void *callbackObj, RecId rid, byte *row, int len) {
-  Schema *schema = (Schema *)callbackObj;
+
+  printf("RID: %i: %i\n", rid, len);
+  printf("Record: %s\n", row);
+  Schema *sch = (Schema *)callbackObj;
   byte *cursor = row;
 
-  printf("%i: %s", rid, row);
+  char str[len];
+  char *res = "";
+
+  int n = sch->numColumns;
+  for (int i = 0; i < n; ++i) {
+    // printf("%s: %s\n", sch->columns[i]->name, fields[i]);
+    switch (sch->columns[i]->type) {
+    case VARCHAR: {
+      printf("Remaining len: %i\n", len);
+      short size1 = DecodeShort(cursor);
+      printf("Size of string: %i\n", size1);
+      int size = DecodeCString(cursor, str, len);
+      cursor += size;
+      len -= size;
+      printf("%i: %s\n", size, str);
+      fflush(stdout);
+      break;
+    }
+    case INT: {
+      int val = DecodeInt(cursor);
+      cursor += 2;
+      len -= 2;
+      break;
+    }
+    case LONG: {
+      long long val = DecodeLong(cursor);
+      cursor += 4;
+      len -= 4;
+      break;
+    }
+    default:
+      printf("Unknown type %d\n", sch->columns[i]->type);
+      break;
+    }
+  }
+  printf("Output: %i: %s\n", rid, res);
 }
 
 void index_scan(Table *tbl, Schema *schema, int indexFD, int op, char *value) {
@@ -44,7 +83,10 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, char *value) {
     int status = Table_Get(tbl, recId, record, sizeof(record));
     tperror(status, "DumpDB: error while getting record\n");
 
-    printRow(schema, recId, record, sizeof(record));
+    printf("RID: %i\n", recId);
+    printf("Record: %s\n", record);
+    printf("Status: %i\n", status);
+    // printRow(schema, recId, record, status);
   }
   int err = AM_CloseIndexScan(scanD);
   tperror(err, "DumpDB: error while closing index scan\n");
