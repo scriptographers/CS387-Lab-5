@@ -18,25 +18,29 @@ Change the directory to dblayer using `cd dblayer/`.
 
 Use `./loaddb` command to load `data.csv` and generate the database `data.db` and secondary index table `data.db.2`.  
 Refer to documentation for more details.  
-Expected output is present in `../output/loaddb.txt`
+![`loaddb`](./screenshots/loaddb.png)  
+Complete output is present in `../output/loaddb.txt`
 
 ### Sequential Scan
 
 Use `./dumpdb s` command to sequentially scan through the database `data.db`.  
 Refer to documentation for more details.  
-Expected output is present in `../output/dumpdb_s.txt`
+![`dumpdb s`](./screenshots/dumpdb_s.png)  
+Complete output is present in `../output/dumpdb_s.txt`
 
 ### Index Scan
 
 Use `./dumpdb s` command to index scan through the database `data.db` using index stored in `data.db.2`.  
 Refer to documentation for more details.  
-Expected output is present in `../output/dumpdb_i.txt`
+![`dumpdb i`](./screenshots/dumpdb_i.png)  
+Complete output is present in `../output/dumpdb_i.txt`
 
 ### Querying using Index Scan
 
 Use `./dumpdb s [condition] [value]` command to query records satisfying the condition using index scan.  
 Refer to documentation for more details.  
-Example output for querying population less than 100000 is present in `../output/dumpdb_i_less_than_100000.txt`.
+![`dumpdb i LESS_THAN 100000`](./screenshots/dumpdb_i_less_than_100000.png)  
+Complete output for querying population less than 100000 is present in `../output/dumpdb_i_less_than_100000.txt`.
 
 ## Documentation
 
