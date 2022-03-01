@@ -107,26 +107,21 @@ Schema *loadCSV() {
   char record[MAX_PAGE_SIZE];
 
   while ((line = fgets(buf, MAX_LINE_LEN, fp)) != NULL) {
-    printf("\nData: %s", line);
-    fflush(stdout);
 
     int n = split(line, ",", tokens);
     assert(n == sch->numColumns);
-    // strdup(record, "");
     int len = encode(sch, tokens, record, sizeof(record)); // in bytes
-    printf("Len (in bytes) %i\n", len);
-    printf("Record: %s\n", record);
-    fflush(stdout);
 
     RecId rid;
     status = Table_Insert(tbl, record, len, &rid);
     tperror2(status, "LoadDB: error while inserting into table\n");
 
-    printf("RID: %i\n", rid);
+    printf("RID: %i | Length (bytes): %d | Data: %s\n", rid, len, line);
     fflush(stdout);
 
     status = AM_InsertEntry(indexFD, 'i', 4, tokens[2], rid);
     tperror2(status, "LoadDB: error while inserting into index file\n");
+
   }
 
   status = PF_CloseFile(indexFD);
