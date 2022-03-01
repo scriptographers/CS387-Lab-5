@@ -234,7 +234,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
         setNumSlots(pagebuf, 0);
         setFreeOffset(pagebuf, PF_PAGE_SIZE);
         // printf("length not enough, new page %d\n", pagenum);
-        int temp = remainingSpace(pagebuf);
+        // int temp = remainingSpace(pagebuf);
     }
 
     // Get the next free slot on page
@@ -256,8 +256,12 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
 
     // Compute RID
     int page_bits = pagenum << 16;
-    *rid = page_bits + nslots;
+    (*rid) = page_bits + nslots;
     // printf("new nslots: %d, RID: %d\n", getNumSlots(pagebuf), *rid);
+
+    int rem_after = remainingSpace(pagebuf);
+    printf("pageNum: %d, freeSpace: %d, len: %d, rid: %d\n", pagenum, rem_after, len, *rid);
+    fflush(stdout);
 
     // Unfix the page
     status = PF_UnfixPage(fd, pagenum, true);
