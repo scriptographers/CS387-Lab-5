@@ -74,13 +74,11 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
     }
   }
 
-  record[len] = '\0';
-  len += 1;
-
   if (spaceLeft <= 0) {
     printf("Not enough space left\n");
     return -1;
   }
+
   return len;
 }
 
