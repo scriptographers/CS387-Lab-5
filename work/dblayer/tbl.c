@@ -250,7 +250,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid)
     setNumSlots(pagebuf, nslots + 1);
     // Set new free offset
     setFreeOffset(pagebuf, slot_offset);
-    int loc_slot_offset = SLOT_COUNT_OFFSET + nslots + 1; // in 4s of bytes
+    int loc_slot_offset = SLOT_COUNT_OFFSET + nslots; // in 4s of bytes
     // printf("location of slot offset: %d\n", loc_slot_offset);
     *getPointer(pagebuf, loc_slot_offset) = slot_offset;
 
@@ -344,7 +344,7 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
         nslots = getNumSlots(pagebuf);
 
         for (int s = 0; s < nslots; s++){
-            
+
             rid = (pagenum << 16) + s;
             
             slen = getLen(s, pagebuf); // in bytes
@@ -358,6 +358,11 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
             free(record);
 
         }
+
+        // Unfix the page
+        status = PF_UnfixPage(fd, pagenum, false);
+        tperror(status, "Table_Scan: error while unfixing page");
+        if (status < 0){ return status; }
 
     }
 
