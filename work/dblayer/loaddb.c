@@ -112,8 +112,10 @@ Schema *loadCSV() {
 
     int n = split(line, ",", tokens);
     assert(n == sch->numColumns);
+    // strdup(record, "");
     int len = encode(sch, tokens, record, sizeof(record)); // in bytes
     printf("Len (in bytes) %i\n", len);
+    printf("Record: %s\n", record);
     fflush(stdout);
 
     RecId rid;
