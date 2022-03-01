@@ -26,13 +26,13 @@
 
 // extern void tperror2(int, char *);
 
-void tperror2(int status, char* s){
-    // EXTRA FUNCTION: prints error
-    if (status < 0){ 
-        printf("%s\n", s);
-        PF_PrintError();
-        exit(EXIT_FAILURE);
-    }
+void tperror2(int status, char *s) {
+  // EXTRA FUNCTION: prints error
+  if (status < 0) {
+    printf("%s\n", s);
+    PF_PrintError();
+    exit(EXIT_FAILURE);
+  }
 }
 
 /**
@@ -46,25 +46,38 @@ int encode(Schema *sch, char **fields, byte *record, int spaceLeft) {
   for (int i = 0; i < n; ++i) {
     // printf("%s: %s\n", sch->columns[i]->name, fields[i]);
     switch (sch->columns[i]->type) {
-    case VARCHAR:
-      len += EncodeCString(fields[i], record, strlen(fields[i]));
+    case VARCHAR: {
+      int size = EncodeCString(fields[i], record + len, spaceLeft);
+      len += size;
+      spaceLeft -= size;
+      // printf("Size: %d\n", size);
+      // printf("Record: %s\n", record);
       break;
-
-    case INT:
-      len += EncodeInt(atoi(fields[i]), record);
+    }
+    case INT: {
+      int size = EncodeInt(atoi(fields[i]), record + len);
+      len += size;
+      spaceLeft -= size;
+      // printf("Record: %s\n", record);
       break;
-
-    case LONG:
-      len += EncodeLong(atoll(fields[i]), record);
+    }
+    case LONG: {
+      int size = EncodeLong(atoll(fields[i]), record + len);
+      len += size;
+      spaceLeft -= size;
+      // printf("Record: %s\n", record);
       break;
-
+    }
     default:
-      printf("Unknown type %d\n", sch->columns[i]->type);
+      // printf("Unknown type %d\n", sch->columns[i]->type);
       break;
     }
   }
 
-  if (len > spaceLeft) {
+  record[len] = '\0';
+  len += 1;
+
+  if (spaceLeft <= 0) {
     printf("Not enough space left\n");
     return -1;
   }
@@ -121,7 +134,6 @@ Schema *loadCSV() {
 
     status = AM_InsertEntry(indexFD, 'i', 4, tokens[2], rid);
     tperror2(status, "LoadDB: error while inserting into index file\n");
-
   }
 
   status = PF_CloseFile(indexFD);
