@@ -1,0 +1,194 @@
+RID: 0 | Length (bytes): 24 | Data: Afghanistan
+RID: 1 | Length (bytes): 21 | Data: Albania
+RID: 2 | Length (bytes): 22 | Data: Algeria
+RID: 3 | Length (bytes): 31 | Data: Andorra
+RID: 4 | Length (bytes): 20 | Data: Angola
+RID: 5 | Length (bytes): 37 | Data: Antigua & Barbuda
+RID: 6 | Length (bytes): 29 | Data: Argentina
+RID: 7 | Length (bytes): 22 | Data: Armenia
+RID: 8 | Length (bytes): 25 | Data: Australia
+RID: 9 | Length (bytes): 21 | Data: Austria
+RID: 10 | Length (bytes): 22 | Data: Azerbaijan
+RID: 11 | Length (bytes): 21 | Data: Bahamas
+RID: 12 | Length (bytes): 21 | Data: Bahrain
+RID: 13 | Length (bytes): 23 | Data: Bangladesh
+RID: 14 | Length (bytes): 26 | Data: Barbados
+RID: 15 | Length (bytes): 20 | Data: Belarus
+RID: 16 | Length (bytes): 23 | Data: Belgium
+RID: 17 | Length (bytes): 22 | Data: Belize
+RID: 18 | Length (bytes): 23 | Data: Benin
+RID: 19 | Length (bytes): 21 | Data: Bhutan
+RID: 20 | Length (bytes): 20 | Data: Bolivia
+RID: 21 | Length (bytes): 36 | Data: Bosnia & Herzegovina
+RID: 22 | Length (bytes): 24 | Data: Botswana
+RID: 23 | Length (bytes): 22 | Data: Brazil
+RID: 24 | Length (bytes): 33 | Data: Brunei
+RID: 25 | Length (bytes): 21 | Data: Bulgaria
+RID: 26 | Length (bytes): 31 | Data: Burkina Faso
+RID: 27 | Length (bytes): 24 | Data: Burundi
+RID: 28 | Length (bytes): 26 | Data: Cambodia
+RID: 29 | Length (bytes): 23 | Data: Cameroon
+RID: 30 | Length (bytes): 20 | Data: Canada
+RID: 31 | Length (bytes): 23 | Data: Cabo Verde
+RID: 32 | Length (bytes): 38 | Data: Central African Republic
+RID: 33 | Length (bytes): 21 | Data: Chad
+RID: 34 | Length (bytes): 21 | Data: Chile
+RID: 35 | Length (bytes): 20 | Data: China
+RID: 36 | Length (bytes): 23 | Data: Colombia
+RID: 37 | Length (bytes): 21 | Data: Comoros
+RID: 38 | Length (bytes): 40 | Data: Republic of the Congo
+RID: 39 | Length (bytes): 26 | Data: Costa Rica
+RID: 40 | Length (bytes): 21 | Data: Croatia
+RID: 41 | Length (bytes): 18 | Data: Cuba
+RID: 42 | Length (bytes): 21 | Data: Cyprus
+RID: 43 | Length (bytes): 28 | Data: Czech Republic
+RID: 44 | Length (bytes): 48 | Data: Democratic Republic of the Congo
+RID: 45 | Length (bytes): 25 | Data: Denmark
+RID: 46 | Length (bytes): 31 | Data: Djibouti
+RID: 47 | Length (bytes): 22 | Data: Dominica
+RID: 48 | Length (bytes): 39 | Data: Dominican Republic
+RID: 49 | Length (bytes): 22 | Data: East Timor
+RID: 50 | Length (bytes): 20 | Data: Ecuador
+RID: 51 | Length (bytes): 18 | Data: Egypt
+RID: 52 | Length (bytes): 31 | Data: El Salvador
+RID: 53 | Length (bytes): 31 | Data: Equatorial Guinea
+RID: 54 | Length (bytes): 21 | Data: Eritrea
+RID: 55 | Length (bytes): 22 | Data: Estonia
+RID: 56 | Length (bytes): 27 | Data: Ethiopia
+RID: 57 | Length (bytes): 45 | Data: Federated States of Micronesia
+RID: 58 | Length (bytes): 16 | Data: Fiji
+RID: 59 | Length (bytes): 23 | Data: Finland
+RID: 60 | Length (bytes): 19 | Data: France
+RID: 61 | Length (bytes): 23 | Data: Gabon
+RID: 62 | Length (bytes): 22 | Data: Georgia
+RID: 63 | Length (bytes): 21 | Data: Germany
+RID: 64 | Length (bytes): 18 | Data: Ghana
+RID: 65 | Length (bytes): 20 | Data: Greece
+RID: 66 | Length (bytes): 29 | Data: Grenada
+RID: 67 | Length (bytes): 31 | Data: Guatemala
+RID: 68 | Length (bytes): 21 | Data: Guinea
+RID: 69 | Length (bytes): 27 | Data: Guinea-Bissau
+RID: 70 | Length (bytes): 24 | Data: Guyana
+RID: 71 | Length (bytes): 27 | Data: Haiti
+RID: 72 | Length (bytes): 27 | Data: Honduras
+RID: 73 | Length (bytes): 23 | Data: Hungary
+RID: 74 | Length (bytes): 24 | Data: Iceland
+RID: 75 | Length (bytes): 22 | Data: India
+RID: 76 | Length (bytes): 24 | Data: Indonesia
+RID: 77 | Length (bytes): 18 | Data: Iran
+RID: 78 | Length (bytes): 19 | Data: Iraq
+RID: 79 | Length (bytes): 21 | Data: Ireland
+RID: 80 | Length (bytes): 32 | Data: Israel
+RID: 81 | Length (bytes): 17 | Data: Italy
+RID: 82 | Length (bytes): 23 | Data: Jamaica
+RID: 83 | Length (bytes): 18 | Data: Japan
+RID: 84 | Length (bytes): 19 | Data: Jordan
+RID: 85 | Length (bytes): 24 | Data: Kazakhstan
+RID: 86 | Length (bytes): 20 | Data: Kenya
+RID: 87 | Length (bytes): 28 | Data: Kiribati
+RID: 88 | Length (bytes): 25 | Data: Kuwait
+RID: 89 | Length (bytes): 25 | Data: Kyrgyzstan
+RID: 90 | Length (bytes): 21 | Data: Laos
+RID: 91 | Length (bytes): 18 | Data: Latvia
+RID: 92 | Length (bytes): 21 | Data: Lebanon
+RID: 93 | Length (bytes): 21 | Data: Lesotho
+RID: 94 | Length (bytes): 23 | Data: Liberia
+RID: 95 | Length (bytes): 20 | Data: Libya
+RID: 96 | Length (bytes): 26 | Data: Liechtenstein
+RID: 97 | Length (bytes): 24 | Data: Lithuania
+RID: 98 | Length (bytes): 28 | Data: Luxembourg
+RID: 99 | Length (bytes): 30 | Data: Madagascar
+RID: 100 | Length (bytes): 22 | Data: Malawi
+RID: 101 | Length (bytes): 28 | Data: Malaysia
+RID: 102 | Length (bytes): 20 | Data: Maldives
+RID: 103 | Length (bytes): 18 | Data: Mali
+RID: 104 | Length (bytes): 21 | Data: Malta
+RID: 105 | Length (bytes): 30 | Data: Marshall Islands
+RID: 106 | Length (bytes): 28 | Data: Mauritania
+RID: 107 | Length (bytes): 27 | Data: Mauritius
+RID: 108 | Length (bytes): 25 | Data: Mexico
+RID: 109 | Length (bytes): 23 | Data: Moldova
+RID: 110 | Length (bytes): 20 | Data: Monaco
+RID: 111 | Length (bytes): 27 | Data: Mongolia
+RID: 112 | Length (bytes): 27 | Data: Montenegro
+RID: 113 | Length (bytes): 20 | Data: Morocco
+RID: 114 | Length (bytes): 24 | Data: Mozambique
+RID: 115 | Length (bytes): 26 | Data: Myanmar
+RID: 116 | Length (bytes): 23 | Data: Namibia
+RID: 117 | Length (bytes): 27 | Data: Nauru
+RID: 118 | Length (bytes): 22 | Data: Nepal
+RID: 119 | Length (bytes): 28 | Data: Netherlands
+RID: 120 | Length (bytes): 29 | Data: New Zealand
+RID: 121 | Length (bytes): 24 | Data: Nicaragua
+RID: 122 | Length (bytes): 19 | Data: Niger
+RID: 123 | Length (bytes): 20 | Data: Nigeria
+RID: 124 | Length (bytes): 28 | Data: North Korea
+RID: 125 | Length (bytes): 18 | Data: Norway
+RID: 126 | Length (bytes): 18 | Data: Oman
+RID: 127 | Length (bytes): 25 | Data: Pakistan
+RID: 128 | Length (bytes): 22 | Data: Palau
+RID: 129 | Length (bytes): 35 | Data: Palestine
+RID: 130 | Length (bytes): 25 | Data: Panama
+RID: 131 | Length (bytes): 36 | Data: Papua New Guinea
+RID: 132 | Length (bytes): 25 | Data: Paraguay
+RID: 133 | Length (bytes): 16 | Data: Peru
+RID: 134 | Length (bytes): 25 | Data: Philippines
+RID: 135 | Length (bytes): 20 | Data: Poland
+RID: 136 | Length (bytes): 22 | Data: Portugal
+RID: 137 | Length (bytes): 17 | Data: Qatar
+RID: 138 | Length (bytes): 35 | Data: Republic of Macedonia
+RID: 139 | Length (bytes): 24 | Data: Romania
+RID: 140 | Length (bytes): 20 | Data: Russia
+RID: 141 | Length (bytes): 20 | Data: Rwanda
+RID: 142 | Length (bytes): 37 | Data: Saint Kitts & Nevis
+RID: 143 | Length (bytes): 27 | Data: Saint Lucia
+RID: 65536 | Length (bytes): 47 | Data: Saint Vincent & the Grenadines
+RID: 65537 | Length (bytes): 17 | Data: Samoa
+RID: 65538 | Length (bytes): 28 | Data: San Marino
+RID: 65539 | Length (bytes): 35 | Data: Sao Tome & Principe
+RID: 65540 | Length (bytes): 26 | Data: Saudi Arabia
+RID: 65541 | Length (bytes): 20 | Data: Senegal
+RID: 65542 | Length (bytes): 22 | Data: Serbia
+RID: 65543 | Length (bytes): 26 | Data: Seychelles
+RID: 65544 | Length (bytes): 28 | Data: Sierra Leone
+RID: 65545 | Length (bytes): 26 | Data: Singapore
+RID: 65546 | Length (bytes): 26 | Data: Slovakia
+RID: 65547 | Length (bytes): 25 | Data: Slovenia
+RID: 65548 | Length (bytes): 30 | Data: Solomon Islands
+RID: 65549 | Length (bytes): 24 | Data: Somalia
+RID: 65550 | Length (bytes): 51 | Data: South Africa
+RID: 65551 | Length (bytes): 24 | Data: South Korea
+RID: 65552 | Length (bytes): 23 | Data: South Sudan
+RID: 65553 | Length (bytes): 19 | Data: Spain
+RID: 65554 | Length (bytes): 50 | Data: Sri Lanka
+RID: 65555 | Length (bytes): 21 | Data: Sudan
+RID: 65556 | Length (bytes): 26 | Data: Suriname
+RID: 65557 | Length (bytes): 23 | Data: Sweden
+RID: 65558 | Length (bytes): 23 | Data: Switzerland
+RID: 65559 | Length (bytes): 21 | Data: Syria
+RID: 65560 | Length (bytes): 20 | Data: Taiwan
+RID: 65561 | Length (bytes): 26 | Data: Tajikistan
+RID: 65562 | Length (bytes): 22 | Data: Tanzania
+RID: 65563 | Length (bytes): 23 | Data: Thailand
+RID: 65564 | Length (bytes): 24 | Data: The Gambia
+RID: 65565 | Length (bytes): 17 | Data: Togo
+RID: 65566 | Length (bytes): 24 | Data: Tonga
+RID: 65567 | Length (bytes): 38 | Data: Trinidad & Tobago
+RID: 65568 | Length (bytes): 20 | Data: Tunisia
+RID: 65569 | Length (bytes): 20 | Data: Turkey
+RID: 65570 | Length (bytes): 28 | Data: Turkmenistan
+RID: 65571 | Length (bytes): 22 | Data: Tuvalu
+RID: 65572 | Length (bytes): 21 | Data: Uganda
+RID: 65573 | Length (bytes): 19 | Data: Ukraine
+RID: 65574 | Length (bytes): 37 | Data: United Arab Emirates
+RID: 65575 | Length (bytes): 28 | Data: United Kingdom
+RID: 65576 | Length (bytes): 36 | Data: United States
+RID: 65577 | Length (bytes): 25 | Data: Uruguay
+RID: 65578 | Length (bytes): 26 | Data: Uzbekistan
+RID: 65579 | Length (bytes): 24 | Data: Vanuatu
+RID: 65580 | Length (bytes): 32 | Data: Vatican City
+RID: 65581 | Length (bytes): 24 | Data: Venezuela
+RID: 65582 | Length (bytes): 20 | Data: Vietnam
+RID: 65583 | Length (bytes): 19 | Data: Yemen
+RID: 65584 | Length (bytes): 20 | Data: Zambia
+RID: 65585 | Length (bytes): 22 | Data: Zimbabwe

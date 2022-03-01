@@ -1,0 +1,12 @@
+Vatican City,Vatican City,792
+Tuvalu,Funafuti,11192
+Nauru,Yaren District,11359
+Palau,Ngerulmud,21729
+San Marino,San Marino,33400
+Liechtenstein,Vaduz,37922
+Monaco,Monaco,38695
+Marshall Islands,Majuro,53127
+Saint Kitts & Nevis,Basseterre,55345
+Dominica,Roseau,73925
+Andorra,Andorra La Vella,76965
+Seychelles,Victoria,94737
