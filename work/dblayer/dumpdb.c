@@ -55,8 +55,8 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len) {
 
     case INT: {
       int val = DecodeInt(cursor);
-      cursor += 2;
-      len -= 2;
+      cursor += 4;
+      len -= 4;
 
       res_len += snprintf(res + res_len, MAX_PAGE_SIZE, "%i", val);
 
@@ -65,10 +65,11 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len) {
 
       break;
     }
+
     case LONG: {
       long long val = DecodeLong(cursor);
-      cursor += 4;
-      len -= 4;
+      cursor += 8;
+      len -= 8;
 
       res_len += snprintf(res + res_len, MAX_PAGE_SIZE, "%lld", val);
 
@@ -77,18 +78,22 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len) {
 
       break;
     }
+
     default:
       printf("Unknown type %d\n", sch->columns[i]->type);
       break;
     }
   }
+
   res[res_len - 1] = '\0';
   printf("%s\n", res);
+
+  return;
 }
 
-void index_scan(Table *tbl, Schema *schema, int indexFD, int op, char *value) {
-  printf("%i: %s\n", op, value);
-  int scanD = AM_OpenIndexScan(indexFD, 'i', 4, op, value);
+void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value) {
+
+  int scanD = AM_OpenIndexScan(indexFD, 'i', 4, op, &value);
   tperror(scanD, "DumpDB: error while opening index scan\n");
 
   char record[MAX_PAGE_SIZE];
@@ -103,8 +108,11 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, char *value) {
 
     printRow(schema, recId, record, status);
   }
+
   int err = AM_CloseIndexScan(scanD);
   tperror(err, "DumpDB: error while closing index scan\n");
+
+  return;
 }
 
 int main(int argc, char **argv) {
@@ -135,17 +143,17 @@ int main(int argc, char **argv) {
     if (argc == 4) {
       // Parse arguments
       if (strcmp(argv[2], "EQUAL") == 0) {
-        index_scan(tbl, sch, indexFD, EQUAL, argv[3]);
+        index_scan(tbl, sch, indexFD, EQUAL, atoi(argv[3]));
       } else if (strcmp(argv[2], "NOT_EQUAL") == 0) {
-        index_scan(tbl, sch, indexFD, NOT_EQUAL, argv[3]);
+        index_scan(tbl, sch, indexFD, NOT_EQUAL, atoi(argv[3]));
       } else if (strcmp(argv[2], "LESS_THAN") == 0) {
-        index_scan(tbl, sch, indexFD, LESS_THAN, argv[3]);
+        index_scan(tbl, sch, indexFD, LESS_THAN, atoi(argv[3]));
       } else if (strcmp(argv[2], "LESS_THAN_EQUAL") == 0) {
-        index_scan(tbl, sch, indexFD, LESS_THAN_EQUAL, argv[3]);
+        index_scan(tbl, sch, indexFD, LESS_THAN_EQUAL, atoi(argv[3]));
       } else if (strcmp(argv[2], "GREATER_THAN") == 0) {
-        index_scan(tbl, sch, indexFD, GREATER_THAN, argv[3]);
+        index_scan(tbl, sch, indexFD, GREATER_THAN, atoi(argv[3]));
       } else if (strcmp(argv[2], "GREATER_THAN_EQUAL") == 0) {
-        index_scan(tbl, sch, indexFD, GREATER_THAN_EQUAL, argv[3]);
+        index_scan(tbl, sch, indexFD, GREATER_THAN_EQUAL, atoi(argv[3]));
       } else {
         printf("Wrong Operation\n");
         exit(1);
@@ -153,8 +161,8 @@ int main(int argc, char **argv) {
 
     } else {
       // Complete index scan
-      index_scan(tbl, sch, indexFD, LESS_THAN_EQUAL, "100000");
-      index_scan(tbl, sch, indexFD, GREATER_THAN, "100000");
+      index_scan(tbl, sch, indexFD, LESS_THAN_EQUAL, 1000000);
+      index_scan(tbl, sch, indexFD, GREATER_THAN, 1000000);
     }
 
     status = PF_CloseFile(indexFD);

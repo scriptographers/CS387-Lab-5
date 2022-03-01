@@ -132,7 +132,8 @@ Schema *loadCSV() {
     printf("RID: %i | Length (bytes): %d | Data: %s\n", rid, len, line);
     fflush(stdout);
 
-    status = AM_InsertEntry(indexFD, 'i', 4, tokens[2], rid);
+    int population = atoi(tokens[2]);
+    status = AM_InsertEntry(indexFD, 'i', 4, &population, rid);
     tperror2(status, "LoadDB: error while inserting into index file\n");
   }
 
