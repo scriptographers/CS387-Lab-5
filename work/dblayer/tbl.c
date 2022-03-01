@@ -350,18 +350,16 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
             slen = getLen(s, pagebuf); // in bytes
             offset = getNthSlotOffset(s, pagebuf); // in bytes
             
-            free(record);
             record = malloc(sizeof(byte)*slen);
             memcpy(record, pagebuf + offset, slen);
             
             callbackfn(callbackObj, rid, record, slen);
 
+            free(record);
+
         }
 
     }
-    
-    if (record != NULL)
-        free(record);
 
     // Close PF file
     status = PF_CloseFile(fd);
