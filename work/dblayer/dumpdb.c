@@ -25,8 +25,11 @@ extern void tperror(int, char *);
 
 void printRow(void *callbackObj, RecId rid, byte *row, int len) {
 
-  printf("RID: %i: %i\n", rid, len);
+  printf("RID: %i\n", rid);
+  printf("Len: %i\n", len);
   printf("Record: %s\n", row);
+  return;
+
   Schema *sch = (Schema *)callbackObj;
   byte *cursor = row;
 
@@ -83,10 +86,7 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, char *value) {
     int status = Table_Get(tbl, recId, record, sizeof(record));
     tperror(status, "DumpDB: error while getting record\n");
 
-    printf("RID: %i\n", recId);
-    printf("Record: %s\n", record);
-    printf("Status: %i\n", status);
-    // printRow(schema, recId, record, status);
+    printRow(schema, recId, record, status);
   }
   int err = AM_CloseIndexScan(scanD);
   tperror(err, "DumpDB: error while closing index scan\n");
