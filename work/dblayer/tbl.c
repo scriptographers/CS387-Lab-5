@@ -321,7 +321,7 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen)
 void
 Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) 
 {
-    int status, fd, pagenum;
+    int status, fd, pagenum = -1;
     byte* pagebuf; // pointer to the pointer to the buffer
 
     // Open the PF file
@@ -331,9 +331,18 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
 
     // Scan
     int rid, nslots, slen, offset;
-    byte* record;
-    while (PF_GetNextPage(fd, &pagenum, &pagebuf) != PFE_EOF){
+    byte* record = NULL;
+    while (true){
+
+        status = PF_GetNextPage(fd, &pagenum, &pagebuf);
+
+        if (status == PFE_EOF)
+            break;
+        else
+            tperror(status, "Table_Scan: error while fetching next page");
+
         nslots = getNumSlots(pagebuf);
+
         for (int s = 0; s < nslots; s++){
             
             rid = (pagenum << 16) + s;
@@ -348,8 +357,11 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn)
             callbackfn(callbackObj, rid, record, slen);
 
         }
+
     }
-    free(record);
+    
+    if (record != NULL)
+        free(record);
 
     // Close PF file
     status = PF_CloseFile(fd);

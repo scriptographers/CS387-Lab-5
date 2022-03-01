@@ -10,4 +10,4 @@ make
 
 cd ../dblayer
 make clean
-make loaddb
+make
